@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Loader, ActionIcon, Table, Button } from '@mantine/core';
-import { IconTrash, IconEdit, IconPlus } from '@tabler/icons-react';
+import { IconTrash, IconEdit, IconPlus, IconCircleMinus } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import AppLayout from '../../components/Layout';
 import { FAB } from '../../components/FAB';
@@ -79,6 +79,14 @@ export default function UsersList() {
             onClick={() => editClinic(clinic)}
           >
             Edit
+          </Button>
+          <Button
+            leftSection={<IconCircleMinus size="1rem" />}
+            variant="transparent"
+            onClick={() => confirmDelete(clinic.id)}
+            style={{ color: '#e60000' }}
+          >
+            Delete
           </Button>
         </div>
       </Table.Td>
