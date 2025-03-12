@@ -9,20 +9,18 @@ import {
   TextInput,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import { IconCircleMinus, IconEdit, IconRestore, IconTrash } from '@tabler/icons-react';
-import * as z from 'zod';
-import { DESTRUCTION } from 'dns';
-import { curry, sortBy } from 'lodash';
-import { Fragment, useEffect, useMemo, useReducer, useState } from 'react';
+import { IconCircleMinus, IconRestore } from '@tabler/icons-react';
+import axios from 'axios';
+import { sortBy } from 'lodash';
+import { useRouter } from 'next/router';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useImmer, useImmerReducer } from 'use-immer';
-import { v1 as uuidv1, v4 as uuidv4 } from 'uuid';
+import { v1 as uuidv1 } from 'uuid';
+import * as z from 'zod';
 import If from '../../../components/If';
 import AppLayout from '../../../components/Layout';
-import { FieldType, InputType } from '../../../types/Inputs';
-import { FreeTextInput, OptionsInput } from '../new-form';
-import axios from 'axios';
-import { useRouter } from 'next/router';
 import { mapObjectValues } from '../../../utils/misc';
+import { FreeTextInput, OptionsInput } from '../new-form';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
@@ -60,7 +58,7 @@ export type RegistrationForm = {
   id: string;
   name: string;
   fields: RegistrationFormField[];
-  metadata: Record<string, any>;
+  metadata: Record;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -95,7 +93,7 @@ Given a translation object, create options for a dropdown
 export function translationObjectOptions(
   translations: TranslationObject[],
   language: LanguageKey
-): Array<{ label: string; value: string }> {
+): Array {
   return translations
     .map((t) => getTranslation(t, language))
     .map((st) => ({
@@ -328,58 +326,58 @@ type Action =
   | { type: 'toggle-field-searchable'; payload: { id: string } }
   | { type: 'toggle-field-shows-in-summary'; payload: { id: string } }
   | {
-    type: 'toggle-visibility';
-    payload: {
-      id: string;
+      type: 'toggle-visibility';
+      payload: {
+        id: string;
+      };
+    }
+  | {
+      type: 'update-field-translation';
+      payload: {
+        language: string;
+        text: string;
+      };
+    }
+  | {
+      type: 'update-field-type';
+      payload: {
+        id: string;
+        type: (typeof inputTypes)[number];
+      };
+    }
+  | {
+      type: 'add-select-option';
+      payload: { id: string };
+    }
+  | {
+      type: 'remove-select-option';
+      payload: { id: string; index: number };
+    }
+  | {
+      type: 'add-select-option-translation';
+      payload: {
+        id: string;
+        index: number;
+        language: LanguageKey;
+      };
+    }
+  | {
+      type: 'remove-select-option-translation';
+      payload: {
+        id: string;
+        index: number;
+        language: LanguageKey;
+      };
+    }
+  | {
+      type: 'update-select-option-translation';
+      payload: {
+        id: string;
+        index: number;
+        language: LanguageKey;
+        value: string;
+      };
     };
-  }
-  | {
-    type: 'update-field-translation';
-    payload: {
-      language: string;
-      text: string;
-    };
-  }
-  | {
-    type: 'update-field-type';
-    payload: {
-      id: string;
-      type: (typeof inputTypes)[number];
-    };
-  }
-  | {
-    type: 'add-select-option';
-    payload: { id: string };
-  }
-  | {
-    type: 'remove-select-option';
-    payload: { id: string; index: number };
-  }
-  | {
-    type: 'add-select-option-translation';
-    payload: {
-      id: string;
-      index: number;
-      language: LanguageKey;
-    };
-  }
-  | {
-    type: 'remove-select-option-translation';
-    payload: {
-      id: string;
-      index: number;
-      language: LanguageKey;
-    };
-  }
-  | {
-    type: 'update-select-option-translation';
-    payload: {
-      id: string;
-      index: number;
-      language: LanguageKey;
-      value: string;
-    };
-  };
 
 function reducer(state: State, action: Action) {
   switch (action.type) {
@@ -666,7 +664,7 @@ export default function PatientRegistrationForm() {
   const [loading, setLoading] = useState(false);
   const [loadingForm, setLoadingForm] = useState(true);
 
-  console.log({ state })
+  console.log({ state });
 
   /**
   On page load pull all the registration forms from the database, set the first one to state
@@ -698,9 +696,15 @@ export default function PatientRegistrationForm() {
             column: decodeURI(field.column),
           })),
           // @ts-ignore
-          createdAt: form.createdAt || form.created_at ? new Date(form.createdAt || form.created_at) : new Date(),
+          createdAt:
+            form.createdAt || form.created_at
+              ? new Date(form.createdAt || form.created_at)
+              : new Date(),
           // @ts-ignore
-          updatedAt: form.updatedAt || form.updated_at ? new Date(form.updatedAt || form.updated_at) : new Date(),
+          updatedAt:
+            form.updatedAt || form.updated_at
+              ? new Date(form.updatedAt || form.updated_at)
+              : new Date(),
           metadata: form.metadata,
         };
 

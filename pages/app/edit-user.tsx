@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { Button, Select, TextInput } from '@mantine/core';
+import axios from 'axios';
 import { upperFirst } from 'lodash';
 import { useRouter } from 'next/router';
-import { TextInput, Select, Button } from '@mantine/core';
+import React, { useEffect, useState } from 'react';
 import AppLayout from '../../components/Layout';
+import { useClinicsList } from '../../hooks/useClinicsList';
 import { User } from '../../types/User';
 import { userRoles } from './new-user';
-import axios from 'axios';
-import { useClinicsList } from '../../hooks/useClinicsList';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
-const changePassword = async (email: string, password: string, token: string): Promise<any> => {
+const changePassword = async (email: string, password: string, token: string): Promise => {
   const response = await fetch(`${HIKMA_API}/admin_api/change_password`, {
     method: 'POST',
     headers: {
@@ -39,7 +39,7 @@ export default function EditUser() {
     console.log({ user });
   }, []);
 
-  const updateField = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const updateField = (e: React.ChangeEvent) => {
     setUser({
       ...user,
       [e.target.name]: e.target.value,

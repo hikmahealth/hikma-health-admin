@@ -1,4 +1,4 @@
-import { toLower } from "lodash"
+import { toLower } from 'lodash';
 import { FieldOption } from '../types/Inputs';
 
 export function listToFieldOptions(list: string[]): FieldOption[] {

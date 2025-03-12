@@ -1,7 +1,3 @@
-import * as echarts from 'echarts';
-import Select from 'react-select';
-import AppLayout from '../../components/Layout';
-import { use, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActionIcon,
   Box,
@@ -9,20 +5,20 @@ import {
   Flex,
   Grid,
   InputLabel,
+  Loader,
+  LoadingOverlay,
   Paper,
   Popover,
-  Stack,
-  TextInput,
-  Text,
-  Title,
-  useMantineTheme,
   Radio,
-  LoadingOverlay,
-  Loader,
+  Stack,
+  Text,
+  TextInput,
+  Title,
 } from '@mantine/core';
+import { DatePickerInput } from '@mantine/dates';
+import { useDebouncedValue } from '@mantine/hooks';
 import {
   IconCalendarBolt,
-  IconChevronDown,
   IconList,
   IconMedicineSyrup,
   IconMinus,
@@ -31,24 +27,23 @@ import {
   IconTrash,
   IconUser,
 } from '@tabler/icons-react';
-import ReactECharts from 'echarts-for-react';
-import { usePatientRegistrationForm } from '../../hooks/usePatientRegistrationForm';
-import { RegistrationForm, RegistrationFormField } from './patients/registration-form';
-import { listToFieldOptions } from '../../utils/form-builder';
-import { getTopNWithOther } from '../../utils/misc';
-import { FieldOption, HHField, HHForm } from '../../types/Inputs';
-import { getAllForms } from './forms-list';
-import { v4 as uuidv4 } from 'uuid';
-import { useDebouncedValue } from '@mantine/hooks';
 import axios from 'axios';
+import ReactECharts from 'echarts-for-react';
+import { max } from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
+import Select from 'react-select';
+import { v4 as uuidv4 } from 'uuid';
+import If from '../../components/If';
+import AppLayout from '../../components/Layout';
+import { useEventForms } from '../../hooks/useEventForms';
+import { usePatientRegistrationForm } from '../../hooks/usePatientRegistrationForm';
+import { Event } from '../../types/Event';
+import { FieldOption, HHForm } from '../../types/Inputs';
 import { Patient } from '../../types/Patient';
 import { Prescription } from '../../types/Prescription';
+import { getTopNWithOther } from '../../utils/misc';
 import { Appointment } from './appointments/list';
-import { Event } from '../../types/Event';
-import If from '../../components/If';
-import { useEventForms } from '../../hooks/useEventForms';
-import { max } from 'lodash';
-import { DatePickerInput } from '@mantine/dates';
+import { RegistrationForm, RegistrationFormField } from './patients/registration-form';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
@@ -191,7 +186,7 @@ function PatientFilters({
             <Grid key={f.id}>
               <Grid.Col span={4}>
                 <InputLabel>Field</InputLabel>
-                <Select<FieldOption, false>
+                <Select
                   defaultValue={f.fieldId as any}
                   options={fieldNames as any}
                   className="dark-select-container"
@@ -203,7 +198,7 @@ function PatientFilters({
               </Grid.Col>
               <Grid.Col span={3}>
                 <InputLabel>Operator</InputLabel>
-                <Select<ExplorerOperator, false>
+                <Select
                   classNamePrefix="dark-select"
                   className="dark-select-container"
                   defaultValue={f.operator}
@@ -329,7 +324,7 @@ function EventFilters({
             <Grid key={f.id}>
               <Grid.Col span={4}>
                 <InputLabel>Field</InputLabel>
-                <Select<FieldOption, false>
+                <Select
                   defaultValue={f.fieldId as any}
                   options={formOptions as any}
                   className="dark-select-container"
@@ -347,7 +342,7 @@ function EventFilters({
               </Grid.Col>
               <Grid.Col span={3}>
                 <InputLabel>Operator</InputLabel>
-                <Select<ExplorerOperator, false>
+                <Select
                   classNamePrefix="dark-select"
                   className="dark-select-container"
                   defaultValue={f.operator}
@@ -415,7 +410,7 @@ type FilterRule = {
 };
 
 type ExplorerFilters = {
-  rules: Record<ExplorerModule, FilterRule[]>;
+  rules: Record;
 };
 
 type PatientFilter = {
@@ -934,7 +929,7 @@ const getOptions = (xAxisData: string[], yAxisData: number[]) => ({
   },
 });
 
-const getSlicedOptions = (data: Record<string, number>) => {
+const getSlicedOptions = (data: Record) => {
   const xAxisData = Object.keys(data);
   const yAxisData = Object.values(data);
   const options = getOptions(xAxisData, yAxisData);
@@ -1014,8 +1009,8 @@ const eg = [
  * const result2 = groupAndCount(patients, '6e000dc0-130b-11ef-9002-27cca56014c1');
  * // Returns: { white: 22, brown: 99, green: 2 }
  */
-const groupAndCount = (collection: any[], key: string): Record<string, number> => {
-  return collection.reduce((acc: Record<string, number>, item: any) => {
+const groupAndCount = (collection: any[], key: string): Record => {
+  return collection.reduce((acc: Record, item: any) => {
     let value: string | null = null;
 
     // Check if the key exists at the root level

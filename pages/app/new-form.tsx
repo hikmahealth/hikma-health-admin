@@ -1,64 +1,53 @@
 // @ts-nocheck
-import React, { useState, useReducer, useEffect, useMemo } from 'react';
 import {
-  Menu,
   Button,
-  Grid,
-  TextInput,
-  Divider,
-  Paper,
-  Flex,
-  Text,
   Checkbox,
+  Divider,
+  Flex,
+  Grid,
   Group,
-  NumberInput,
-  Textarea,
-  Select,
-  Radio,
   MultiSelect,
+  NumberInput,
+  Radio,
+  Select,
+  Textarea,
+  TextInput,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import { v1 as uuidV1 } from 'uuid';
-import axios from 'axios';
 import {
-  IconSettings,
-  IconSelector,
-  IconTextSize,
+  IconCalendar,
+  IconCheckbox,
+  IconList,
+  IconMedicineSyrup,
   IconNotes,
   IconNumbers,
-  IconList,
-  IconCheckbox,
-  IconMedicineSyrup,
-  IconDatabase,
-  IconCalendar,
-  IconPhoto,
-  IconMessageCircle,
-  IconTrash,
-  IconArrowsLeftRight,
   IconReportMedical,
+  IconTextSize,
 } from '@tabler/icons-react';
-import { omit, eq, sortBy } from 'lodash';
-import { ColorSchemeToggle } from '../../components/ColorSchemeToggle/ColorSchemeToggle';
+import axios from 'axios';
+import { eq, omit, sortBy } from 'lodash';
+import { nanoid } from 'nanoid';
+import { useRouter } from 'next/router';
+import React, { useEffect, useReducer, useState } from 'react';
+import { v1 as uuidV1 } from 'uuid';
+import { DiagnosisSelect } from '../../components/FormBuilder/DiagnosisPicker';
 import { InputSettingsList } from '../../components/FormBuilder/InputSettingsList';
 import { MedicineInput } from '../../components/FormBuilder/MedicineInput';
+import AppLayout from '../../components/Layout';
+import { languageOptions } from '../../data/languages';
 import {
-  TextField,
-  HHFieldBase,
   BinaryField,
-  MedicineField,
+  DoseUnit,
+  FieldOption,
+  FieldType,
   HHField,
+  HHFieldBase,
   HHFieldWithPosition,
   InputType,
+  MedicineField,
   OptionsField,
-  FieldType,
-  FieldOption,
-  DoseUnit,
+  TextField,
 } from '../../types/Inputs';
-import AppLayout from '../../components/Layout';
-import { DiagnosisSelect } from '../../components/FormBuilder/DiagnosisPicker';
-import { languageOptions } from '../../data/languages';
-import { useRouter } from 'next/router';
-import { nanoid } from 'nanoid';
 import { deduplicateOptions, safeJSONParse } from '../../utils/misc';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
@@ -232,7 +221,7 @@ const createDateField = (name = '', description = '', inputType = 'date'): DateF
   };
 };
 
-let inputFieldOptions: Partial<FieldType>[] = ['binary', 'free-text', 'medicine'];
+let inputFieldOptions: Partial[] = ['binary', 'free-text', 'medicine'];
 
 type AddButtonProps = {
   onClick: (fieldType: FieldType, inputType: InputType) => void;
@@ -527,7 +516,7 @@ export default function NewFormBuilder() {
     setLoadingSave(true);
     const token = localStorage.getItem('token') || '';
 
-    let result: Promise<any>;
+    let result: Promise;
 
     if (formId && formId.length > 5) {
       // a form is being edited.

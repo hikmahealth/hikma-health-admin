@@ -1,12 +1,9 @@
-import React, { useState, useReducer, useEffect, useMemo, useRef } from 'react';
-import { Menu, Button, TextInput, NumberInput, Textarea, Select, Box } from '@mantine/core';
-import { DatePickerInput } from '@mantine/dates';
-import { v1 as uuidV1 } from 'uuid';
-import axios from 'axios';
-import AppLayout from '../../components/Layout';
+import { Box, Button, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { getTranslation, RegistrationFormField } from './patients/registration-form';
+import axios from 'axios';
 import { useRouter } from 'next/router';
+import { useEffect, useRef, useState } from 'react';
+import AppLayout from '../../components/Layout';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
@@ -22,7 +19,7 @@ type Clinic = {
  * @param name
  * @returns
  */
-const updateClinic = async (id: string, token: string, name: string): Promise<any> => {
+const updateClinic = async (id: string, token: string, name: string): Promise => {
   try {
     const response = await axios.put(
       `${HIKMA_API}/v1/admin/clinics/${id}`,

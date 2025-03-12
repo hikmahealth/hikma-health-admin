@@ -76,12 +76,12 @@ export function formatPatientsIntoRows(
 ): MultiplePatientRows {
   const columns = new Set<string>();
   // intermediate obj to track column names and their ids
-  const addAttrsMapping: Record<string, string> = {};
+  const addAttrsMapping: Record = {};
   let values = []; // { columnName: columnValue }[]
 
   for (let ix = 0; ix < patients.length; ix++) {
     const patient = patients[ix];
-    const res: Record<string, any> = {
+    const res: Record = {
       created_at: patient.created_at || '',
       updated_at: patient.updated_at || '',
     };

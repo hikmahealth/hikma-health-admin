@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import { Button, Select, TextInput } from '@mantine/core';
+import axios from 'axios';
 import { upperFirst } from 'lodash';
-import { TextInput, Select, Button } from '@mantine/core';
+import React, { useEffect, useState } from 'react';
 import AppLayout from '../../components/Layout';
 import { User } from '../../types/User';
-import axios from 'axios';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
-const addUser = async (user: User & { password: string }, token: string): Promise<any> => {
+const addUser = async (user: User & { password: string }, token: string): Promise => {
   const response = await fetch(`${HIKMA_API}/admin_api/user`, {
     method: 'POST',
     headers: {
@@ -62,7 +62,7 @@ export default function NewUser() {
       .catch((error) => console.error(error));
   }, []);
 
-  const updateField = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const updateField = (e: React.ChangeEvent) => {
     setUser({
       ...user,
       [e.target.name]: e.target.value,

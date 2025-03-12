@@ -16,14 +16,14 @@ export function formatEventsIntoRows(
 ): MultipleEventRows {
   const columns = new Set<string>();
   // intermediate obj to track column names and their ids
-  const addAttrsMapping: Record<string, string> = {};
+  const addAttrsMapping: Record = {};
   let values = []; // { columnName: columnValue }[]
 
   for (let ix = 0; ix < events.length; ix++) {
     const event = events[ix];
     console.log({ event });
     const patient = event.patient;
-    const res: Record<string, any> = {
+    const res: Record = {
       created_at: event.createdAt || '',
       updated_at: event.updatedAt || '',
 

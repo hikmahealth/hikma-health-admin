@@ -1,16 +1,14 @@
-import { useEffect, useState } from 'react';
-import { Title, Paper, Loader, Box, MantineColorScheme, Grid } from '@mantine/core';
-import Select from 'react-select';
-import AppLayout from '../../components/Layout';
-import { DashboardStatsGrid } from '../../components/DashboardStatsGrid';
-import { useAuthStatus, useUser } from '../../hooks/useUser';
-import { useRouter } from 'next/router';
+import { Box, Grid, Loader, MantineColorScheme, Paper, Title } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import { usePatientRegistrationForm } from '../../hooks/usePatientRegistrationForm';
-import { useEventForms } from '../../hooks/useEventForms';
-import If from '../../components/If';
 import axios from 'axios';
 import EChartsReact from 'echarts-for-react';
+import { useEffect, useState } from 'react';
+import Select from 'react-select';
+import { DashboardStatsGrid } from '../../components/DashboardStatsGrid';
+import If from '../../components/If';
+import AppLayout from '../../components/Layout';
+import { useEventForms } from '../../hooks/useEventForms';
+import { usePatientRegistrationForm } from '../../hooks/usePatientRegistrationForm';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
@@ -138,25 +136,24 @@ export default function Dashboard() {
   );
 }
 
-
 type FormId = string;
 type FormFieldId = string;
 
 type KPIFields = {
   patient_fields: string[]; // field ids
-  event_fields: Record<FormId, FormFieldId[]>; // form id -> field ids
+  event_fields: Record; // form id -> field ids
 };
 
 type KPIRequest = {
   start_date: string; // Date.now().toISOString()
   end_date: string; // Date.now().toISOString()
   kpi_fields: KPIFields;
-}
+};
 
 type KPIResponse = {
-  patient_field_counts: Record<FormFieldId, Record<string, number>>; // { field id -> { field value -> count } }
-  event_field_counts: Record<FormId, Record<FormFieldId, Record<string, number>>> // form id -> { field id -> { field value -> count } }
-}
+  patient_field_counts: Record; // { field id -> { field value -> count } }
+  event_field_counts: Record; // form id -> { field id -> { field value -> count } }
+};
 
 function OrganizationalKPIS() {
   const [value, setValue] = useState<[Date | null, Date | null]>([null, null]);
@@ -166,7 +163,6 @@ function OrganizationalKPIS() {
     refresh: refreshForm,
   } = usePatientRegistrationForm();
   const { forms, isLoading, refetch } = useEventForms();
-
 
   const [kpiFields, setKpiFields] = useState<KPIFields>({
     patient_fields: [],
@@ -190,23 +186,31 @@ function OrganizationalKPIS() {
 
   useEffect(() => {
     if (!value[0] || !value[1]) return;
-    axios.post(`${HIKMA_API}/v1/admin/dashboard/kpis`, {
-      start_date: value[0]?.toISOString(),
-      end_date: value[1]?.toISOString(),
-      kpi_fields: kpiFields,
-    }, {
-      headers: {
-        Authorization: String(localStorage.getItem('token')),
-      },
-    }).then((response) => {
-      setKpiResults(response.data);
-      console.log(response.data);
-    });
-  }, [value, kpiFields])
+    axios
+      .post(
+        `${HIKMA_API}/v1/admin/dashboard/kpis`,
+        {
+          start_date: value[0]?.toISOString(),
+          end_date: value[1]?.toISOString(),
+          kpi_fields: kpiFields,
+        },
+        {
+          headers: {
+            Authorization: String(localStorage.getItem('token')),
+          },
+        }
+      )
+      .then((response) => {
+        setKpiResults(response.data);
+        console.log(response.data);
+      });
+  }, [value, kpiFields]);
 
   // the fieldId could be the column name if the field is a base field or the id if the field is a custom field
   function getPatientFieldLabel(fieldId: string) {
-    const field = patientRegistrationForm?.fields.find((f) => f.baseField ? f.column === fieldId : f.id === fieldId);
+    const field = patientRegistrationForm?.fields.find((f) =>
+      f.baseField ? f.column === fieldId : f.id === fieldId
+    );
     return field?.label.en || fieldId;
   }
 
@@ -240,14 +244,13 @@ function OrganizationalKPIS() {
         // name: '2011',
         type: 'bar',
         data: yAxisData,
-      }
+      },
     ],
-    
+
     tooltip: {
       trigger: 'axis',
     },
-  }
-);
+  });
 
   const colorScheme: MantineColorScheme = 'dark';
   return (
@@ -281,32 +284,33 @@ function OrganizationalKPIS() {
               }}
               options={patientRegistrationForm?.fields
                 .filter((f) => f.deleted !== true)
-                ?.map((field) => ({ label: field.label.en, value: field.baseField ? field.column : field.id}))}
+                ?.map((field) => ({
+                  label: field.label.en,
+                  value: field.baseField ? field.column : field.id,
+                }))}
             />
           </div>
 
-
           <Grid columns={2} gutter={20}>
-            {
-              kpiFields.patient_fields.map((field) => (
-                <Grid.Col span={1} key={field}>
-                  <Paper shadow="xs" className="" p="xl">
-                    <Title order={3}>{getPatientFieldLabel(field)}</Title>
+            {kpiFields.patient_fields.map((field) => (
+              <Grid.Col span={1} key={field}>
+                <Paper shadow="xs" className="" p="xl">
+                  <Title order={3}>{getPatientFieldLabel(field)}</Title>
 
-                    {kpiResults.patient_field_counts[field] && (
-                      <div>
-                        <EChartsReact option={getOptions(
+                  {kpiResults.patient_field_counts[field] && (
+                    <div>
+                      <EChartsReact
+                        option={getOptions(
                           Object.keys(kpiResults.patient_field_counts[field]),
                           Object.values(kpiResults.patient_field_counts[field])
-                        )} />
-                      </div>
-                    )}
-                  </Paper>
-                </Grid.Col>
-              ))
-            }
-            </Grid>
-
+                        )}
+                      />
+                    </div>
+                  )}
+                </Paper>
+              </Grid.Col>
+            ))}
+          </Grid>
 
           {/* <div>
             <pre>
@@ -338,31 +342,33 @@ function OrganizationalKPIS() {
                   values.map((v) => v.value)
                 );
               }}
-              options={form.form_fields?.map((field) => ({ label: field.name, value: `${field.id}` }))}
+              options={form.form_fields?.map((field) => ({
+                label: field.name,
+                value: `${field.id}`,
+              }))}
             />
           </div>
 
-
           <Grid columns={2} gutter={20}>
-            {
-              kpiFields.event_fields[form.id]?.map((field) => (
-                <Grid.Col span={1} key={field}>
-                  <Paper shadow="xs" className="" p="xl">
-                    <Title order={3}>{getEventFieldLabel(form.id, field)}</Title>
+            {kpiFields.event_fields[form.id]?.map((field) => (
+              <Grid.Col span={1} key={field}>
+                <Paper shadow="xs" className="" p="xl">
+                  <Title order={3}>{getEventFieldLabel(form.id, field)}</Title>
 
-                    {kpiResults.event_field_counts[form.id]?.[field] && (
-                      <div>
-                        <EChartsReact option={getOptions(
+                  {kpiResults.event_field_counts[form.id]?.[field] && (
+                    <div>
+                      <EChartsReact
+                        option={getOptions(
                           Object.keys(kpiResults.event_field_counts[form.id]?.[field]),
                           Object.values(kpiResults.event_field_counts[form.id]?.[field])
-                        )} />
-                      </div>
-                    )}
-                  </Paper>
-                </Grid.Col>
-              ))
-            }
-            </Grid>
+                        )}
+                      />
+                    </div>
+                  )}
+                </Paper>
+              </Grid.Col>
+            ))}
+          </Grid>
         </Box>
       ))}
     </div>

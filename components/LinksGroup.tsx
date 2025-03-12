@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Group, Box, Collapse, ThemeIcon, Text, UnstyledButton, rem } from '@mantine/core';
+import { Box, Collapse, Group, rem, Text, ThemeIcon, UnstyledButton } from '@mantine/core';
 import { createStyles } from '@mantine/emotion';
-import { IconCalendarStats, IconChevronDown, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { IconCalendarStats, IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import Link from 'next/link';
+import { useState } from 'react';
 import If from './If';
 
 const useStyles = createStyles((theme, _, u) => ({
@@ -71,7 +71,7 @@ const useStyles = createStyles((theme, _, u) => ({
 }));
 
 interface LinksGroupProps {
-  icon: React.FC<any>;
+  icon: React.FC;
   label: string;
   initiallyOpened?: boolean;
   links?: { label: string; link: string }[];
@@ -85,7 +85,7 @@ export function LinksGroup({ icon: Icon, label, initiallyOpened, links, link }: 
   const ChevronIcon = IconChevronRight;
   const items = (hasLinks ? links : []).map((link) => (
     <Link href={link.link} key={link.label} legacyBehavior>
-      <Text<'a'> component="a" className={classes.link} href={link.link}>
+      <Text component="a" className={classes.link} href={link.link}>
         {link.label}
       </Text>
     </Link>

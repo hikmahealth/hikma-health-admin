@@ -1,8 +1,6 @@
-import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
-import { HHForm } from '../types/Inputs';
 import { getAllForms } from '../pages/app/forms-list';
-
+import { HHForm } from '../types/Inputs';
 
 /**
  * Hook that fetches all event forms from the database

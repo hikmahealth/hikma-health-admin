@@ -1,9 +1,9 @@
 spec:
   name: hikma-health-admin
   services:
-  - build_command: npm run build
-    environment_slug: node-js
-    git:
-      branch: main
-      repo_clone_url: https://github.com/hikmahealth/hikma-health-admin
-    name: hikma-health-admin
+    - build_command: npm run build
+      environment_slug: node-js
+      git:
+        branch: main
+        repo_clone_url: https://github.com/hikmahealth/hikma-health-admin
+      name: hikma-health-admin

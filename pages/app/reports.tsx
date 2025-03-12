@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import AppLayout from '../../components/Layout';
+import { Box, Button, Collapse, Flex, Group, Text } from '@mantine/core';
+import { DatePickerInput } from '@mantine/dates';
+import { useDisclosure } from '@mantine/hooks';
 import axios from 'axios';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
-import { Box, Text, Collapse, Group, Button, Flex } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { DatePickerInput } from '@mantine/dates';
+import { useEffect, useState } from 'react';
+import AppLayout from '../../components/Layout';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
@@ -166,9 +166,9 @@ interface ApiResponse {
   patients: Patient[];
 }
 
-function calculateAgeHistogram(data: ApiResponse): Record<number, number> {
+function calculateAgeHistogram(data: ApiResponse): Record {
   const currentDate = new Date();
-  const ageHistogram: Record<number, number> = {};
+  const ageHistogram: Record = {};
 
   data.patients?.forEach((patient) => {
     let age: number | null = null;
@@ -204,7 +204,7 @@ function calculateAgeHistogram(data: ApiResponse): Record<number, number> {
 }
 
 interface DiagnosesData {
-  diagnoses_counts: Record<string, number>;
+  diagnoses_counts: Record;
   end_date: string | null;
   start_date: string | null;
 }
@@ -259,7 +259,7 @@ function tallyPatientsBySex(data: ApiResponse): SexTally {
 }
 
 interface PrescriptionsResponse {
-  prescriptions_counts: Record<string, number>;
+  prescriptions_counts: Record;
   start_date: string | null;
   end_date: string | null;
 }

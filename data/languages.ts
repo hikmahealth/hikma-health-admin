@@ -1,4 +1,4 @@
-import { LanguageOption } from '../types/Inputs'
+import { LanguageOption } from '../types/Inputs';
 
 // Language options for the language select
 export const languageOptions: LanguageOption[] = [
@@ -61,4 +61,4 @@ export const languageOptions: LanguageOption[] = [
   { label: 'Uzbek', value: 'uz' },
   { label: 'Turkmen', value: 'tk' },
   { label: 'Somali', value: 'so' },
-]
+];

@@ -1,50 +1,7 @@
-import React, { useState, useReducer } from 'react';
-import {
-  Menu,
-  Button,
-  Grid,
-  TextInput,
-  Divider,
-  Paper,
-  Flex,
-  Text,
-  Checkbox,
-  Group,
-  NumberInput,
-  Textarea,
-  Select,
-  Radio,
-} from '@mantine/core';
-import { DatePickerInput } from '@mantine/dates';
-import {
-  IconSettings,
-  IconSelector,
-  IconTextSize,
-  IconNotes,
-  IconNumbers,
-  IconList,
-  IconCheckbox,
-  IconMedicineSyrup,
-  IconSearch,
-  IconDatabase,
-  IconCalendar,
-  IconPhoto,
-  IconMessageCircle,
-  IconTrash,
-  IconArrowsLeftRight,
-} from '@tabler/icons-react';
-import { upperFirst, lowerCase, eq } from 'lodash';
-import {
-  TextField,
-  HHFieldBase,
-  HHField,
-  InputType,
-  OptionsField,
-  DurationUnit,
-  DoseUnit,
-  MedicineRoute,
-  MedicineForm,
-} from '../../types/Inputs';
+import { NumberInput, Select, TextInput } from '@mantine/core';
+import { eq, upperFirst } from 'lodash';
+import React from 'react';
+import { DoseUnit, DurationUnit, HHField, MedicineForm, MedicineRoute } from '../../types/Inputs';
 
 const concentationUnitOptions: DoseUnit[] = ['mg', 'g', 'mcg', 'mL', 'L', 'units'];
 const durationUnitOptions: DurationUnit[] = ['days', 'weeks', 'months', 'years'];

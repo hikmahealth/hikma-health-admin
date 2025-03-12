@@ -38,12 +38,12 @@ export type Event = {
 
 export type EventRow = {
   columns: string[]; // a list of the column names (human readble prefferable)
-  values: Array<string | boolean | Date | number>; // (list of the values)
+  values: Array; // (list of the values)
 };
 
 export type MultipleEventRows = {
   columns: string[];
-  values: Array<Record<string, string | number | Date>>;
+  values: Array;
 };
 
 type FormDataEntry = {
@@ -71,8 +71,8 @@ export type EventResponse = {
         string_value: null | string;
       };
     };
-    additional_data: Record<string, any>;
-    metadata: Record<string, any>;
+    additional_data: Record;
+    metadata: Record;
     [key: string]: any;
   };
   [key: string]: any;

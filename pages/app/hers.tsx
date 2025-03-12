@@ -1,7 +1,7 @@
-import * as echarts from 'echarts';
-import AppLayout from '../../components/Layout';
-import { useEffect } from 'react';
 import { Paper, useMantineTheme } from '@mantine/core';
+import * as echarts from 'echarts';
+import { useEffect } from 'react';
+import AppLayout from '../../components/Layout';
 
 export default function HERSDashboard() {
   return (

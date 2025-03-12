@@ -1,30 +1,22 @@
 // @ts-nocheck
-import { useEffect } from 'react';
 import {
-  rem,
-  Text,
-  TextInput,
+  Box,
   Button,
   Checkbox,
-  MultiSelect,
-  useMantineColorScheme,
-  Box,
+  rem,
+  Text,
   Textarea,
+  TextInput,
+  useMantineColorScheme,
 } from '@mantine/core';
-import CreatableSelect from 'react-select/creatable';
 import { createStyles } from '@mantine/emotion';
-import { upperFirst, lowerCase, union, uniqueId, uniq } from 'lodash';
 import { useListState } from '@mantine/hooks';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { IconGripVertical, IconTrash } from '@tabler/icons-react';
-import {
-  FieldOption,
-  HHFieldBase,
-  InputType,
-  HHFieldWithPosition,
-  MeasurementUnit,
-  DoseUnit,
-} from '../../types/Inputs';
+import { uniq, upperFirst } from 'lodash';
+import { useEffect } from 'react';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import CreatableSelect from 'react-select/creatable';
+import { DoseUnit, FieldOption, HHFieldWithPosition, MeasurementUnit } from '../../types/Inputs';
 import { listToFieldOptions } from '../../utils/form-builder';
 import If from '../If';
 

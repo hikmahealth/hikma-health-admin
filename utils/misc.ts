@@ -14,7 +14,7 @@ export function mapObjectValues<T>(obj: T, func: (v: any) => any): T {
  * @param obj The object to convert
  * @returns A new object with all user-defined keys in camelCase
  */
-export const camelCaseKeys = <T extends Record<string, any>>(obj: T): T => {
+export const camelCaseKeys = <T extends Record>(obj: T): T => {
   if (typeof obj !== 'object' || obj === null) return obj;
   try {
     // prevent circular references
@@ -28,7 +28,7 @@ export const camelCaseKeys = <T extends Record<string, any>>(obj: T): T => {
     return obj.map(camelCaseKeys) as unknown as T;
   }
 
-  return Object.entries(obj).reduce((acc: Record<string, any>, [key, value]) => {
+  return Object.entries(obj).reduce((acc: Record, [key, value]) => {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const camelKey = key.replace(/([-_][a-z])/gi, ($1) =>
         $1.toUpperCase().replace('-', '').replace('_', '')
@@ -45,11 +45,9 @@ export const camelCaseKeys = <T extends Record<string, any>>(obj: T): T => {
  * @param {Array<{ label: string, value: string }>} options - The array of options to deduplicate.
  * @returns {Array<{ label: string, value: string }>} The deduplicated array of options.
  */
-export function deduplicateOptions(
-  options: Array<{ label: string; value: string }>
-): Array<{ label: string; value: string }> {
+export function deduplicateOptions(options: Array): Array {
   const seenValues = new Set<string>();
-  const deduplicatedOptions: Array<{ label: string; value: string }> = [];
+  const deduplicatedOptions: Array = [];
 
   for (const option of options.filter((o) => o)) {
     if (!seenValues.has(option.value)) {
@@ -184,15 +182,12 @@ export const tryParseDate = (input: unknown, defaultDate?: Date): Date => {
  * @param {number} topN - The number of top entries to keep.
  * @returns {Record<string, number>} A new object with the top N entries and an "other" key.
  */
-export function getTopNWithOther(
-  obj: Record<string, number>,
-  topN: number
-): Record<string, number> {
+export function getTopNWithOther(obj: Record, topN: number): Record {
   const sortedEntries = Object.entries(obj).sort((a, b) => b[1] - a[1]);
   const topEntries = sortedEntries.slice(0, topN);
   const otherSum = sortedEntries.slice(topN).reduce((sum, [, value]) => sum + value, 0);
 
-  const result: Record<string, number> = Object.fromEntries(topEntries);
+  const result: Record = Object.fromEntries(topEntries);
   if (otherSum > 0) {
     result.other = otherSum;
   }

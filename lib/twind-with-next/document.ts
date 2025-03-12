@@ -1,9 +1,8 @@
-/* eslint-env node */
-import type { DocumentContext, DocumentInitialProps } from 'next/document';
+import type { DocumentContext } from 'next/document';
 
-import { createElement, Fragment } from 'react';
-import Document from 'next/document';
 import { extract } from '@twind/core';
+import Document from 'next/document';
+import { createElement, Fragment } from 'react';
 
 export default install;
 
@@ -20,10 +19,7 @@ function install<Component extends typeof Document = typeof Document>(
   return class TwindDocument extends BaseComponent {
     static getInitialProps(
       ctx: DocumentContext & {
-        defaultGetInitialProps: (
-          ctx: DocumentContext,
-          options?: { nonce?: string }
-        ) => Promise<DocumentInitialProps>;
+        defaultGetInitialProps: (ctx: DocumentContext, options?: { nonce?: string }) => Promise;
       }
     ) {
       const defaultGetInitialProps = ctx.defaultGetInitialProps.bind(ctx);

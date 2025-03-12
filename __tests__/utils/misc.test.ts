@@ -1,9 +1,9 @@
 import {
   camelCaseKeys,
   deduplicateOptions,
+  orderedList,
   safeJSONParse,
   tryParseDate,
-  orderedList,
 } from '../../utils/misc';
 
 describe('camelCaseKeys', () => {

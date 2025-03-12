@@ -1,24 +1,17 @@
 import install from '../lib/twind-with-next/app';
 import config from '../twind.config';
 
-import { useState } from 'react';
-import NextApp, { AppProps, AppContext } from 'next/app';
-import { getCookie, setCookie } from 'cookies-next';
-import Head from 'next/head';
-import {
-  MantineProvider,
-  ColorSchemeScript,
-  createTheme,
-  useMantineColorScheme,
-  MantineColorScheme,
-} from '@mantine/core';
-import { Notifications } from '@mantine/notifications';
-import './index.css';
-import { emotionTransform, MantineEmotionProvider } from '@mantine/emotion';
-import { emotionCache } from '../emotion/cache';
+import { ColorSchemeScript, createTheme, MantineColorScheme, MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
+import { emotionTransform, MantineEmotionProvider } from '@mantine/emotion';
+import { Notifications } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
+import { getCookie } from 'cookies-next';
+import NextApp, { AppContext, AppProps } from 'next/app';
+import Head from 'next/head';
+import { emotionCache } from '../emotion/cache';
+import './index.css';
 
 const theme = createTheme({});
 
@@ -39,8 +32,8 @@ function App(props: AppProps & { colorScheme: MantineColorScheme }) {
         // forceColorScheme={colorScheme as any}
         stylesTransform={emotionTransform}
         defaultColorScheme="dark"
-      // withGlobalStyles
-      // withNormalizeCSS
+        // withGlobalStyles
+        // withNormalizeCSS
       >
         <Head>
           <title>Hikma Health Admin Dashboard</title>
@@ -51,7 +44,7 @@ function App(props: AppProps & { colorScheme: MantineColorScheme }) {
 
         <ColorSchemeScript
           defaultColorScheme="dark"
-        // onToggle={() => setColorScheme(colorScheme === 'light' ? 'dark' : 'light')}
+          // onToggle={() => setColorScheme(colorScheme === 'light' ? 'dark' : 'light')}
         />
         <Component {...pageProps} />
         <Notifications />

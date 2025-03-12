@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Table, ActionIcon, Loader, Checkbox } from '@mantine/core';
-import { useRouter } from 'next/router';
-import { IconTrash, IconEdit, IconPlus } from '@tabler/icons-react';
-import { differenceBy, omit, pick, truncate } from 'lodash';
-import AppLayout from '../../components/Layout';
-import { FAB } from '../../components/FAB';
-import { HHForm } from '../../types/Inputs';
-import hikmaFormTemplates from '../../data/hikma-form-templates';
-import { v1 as uuidV1 } from 'uuid';
+import { ActionIcon, Checkbox, Loader, Table } from '@mantine/core';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import axios from 'axios';
+import { pick, truncate } from 'lodash';
+import { useRouter } from 'next/router';
+import { useEffect, useMemo, useState } from 'react';
+import { v1 as uuidV1 } from 'uuid';
+import { FAB } from '../../components/FAB';
+import AppLayout from '../../components/Layout';
+import hikmaFormTemplates from '../../data/hikma-form-templates';
+import { HHForm } from '../../types/Inputs';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
@@ -19,7 +19,7 @@ Fetches all the forms froms from the database
 @param {string} token to authenticate the sender
 @returns {Promise<HHForm[]>}
 */
-export const getAllForms = async (token: string): Promise<HHForm[]> => {
+export const getAllForms = async (token: string): Promise => {
   const response = await fetch(`${HIKMA_API}/admin_api/get_event_forms`, {
     method: 'GET',
     headers: {
@@ -36,7 +36,7 @@ export const getAllForms = async (token: string): Promise<HHForm[]> => {
   return result.event_forms;
 };
 
-const deleteForm = async (id: string, token: string): Promise<any> => {
+const deleteForm = async (id: string, token: string): Promise => {
   const response = await fetch(`${HIKMA_API}/admin_api/delete_event_form`, {
     method: 'DELETE',
     headers: {

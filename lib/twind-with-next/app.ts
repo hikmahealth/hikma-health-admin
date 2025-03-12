@@ -1,26 +1,24 @@
 /* eslint-env node, browser */
-import type { ComponentType } from 'react';
-import type { AppProps } from 'next/app';
 import type { TwindConfig, TwindUserConfig } from '@twind/core';
+import type { AppProps } from 'next/app';
+import type { ComponentType } from 'react';
 
-import { createElement } from 'react';
 import { install as install$ } from '@twind/core';
+import { createElement } from 'react';
 
 export default install;
 
-function install(
-  config: TwindConfig<any> | TwindUserConfig<any>
-): React.JSXElementConstructor<AppProps>;
+function install(config: TwindConfig | TwindUserConfig): React.JSXElementConstructor;
 
 function install<Props, Component>(
-  config: TwindConfig<any> | TwindUserConfig<any>,
-  AppComponent: React.JSXElementConstructor<Props> & Component,
+  config: TwindConfig | TwindUserConfig,
+  AppComponent: React.JSXElementConstructor & Component,
   isProduction?: boolean
 ): Component;
 
 function install<Props, Component>(
   config: TwindConfig | TwindUserConfig,
-  AppComponent: React.JSXElementConstructor<Props> & Component = TwindApp as any,
+  AppComponent: React.JSXElementConstructor & Component = TwindApp as any,
   isProduction = process.env.NODE_ENV == 'production'
 ): Component {
   install$(config as TwindUserConfig, isProduction);
@@ -29,5 +27,5 @@ function install<Props, Component>(
 }
 
 function TwindApp(props: AppProps) {
-  return createElement(props.Component as ComponentType<any>, props.pageProps);
+  return createElement(props.Component as ComponentType, props.pageProps);
 }
