@@ -121,62 +121,62 @@ export function InputSettingsList({
     handlers.setState(data);
   }, [data]);
 
-  const items = state.map((item, index) => (
-    /*     @ts-ignore */
-    <Draggable key={item.id} index={index} draggableId={item.id}>
-      {(provided, snapshot) => (
-        <div
-          className={cx(classes.item, { [classes.itemDragging]: snapshot.isDragging })}
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-        >
-          <div {...provided.dragHandleProps} className={classes.dragHandle}>
-            <IconGripVertical size="1.05rem" stroke={1.5} />
-          </div>
-          <div className="w-full">
-            <h3 className="text-lg font-bold">{upperFirst(item.inputType)} Input</h3>
-            <TextInput
-              label={'Name'}
-              defaultValue={item.name}
-              onChange={(e) => onFieldChange(item.id, 'name', e.currentTarget.value)}
-            />
-            <TextInput
-              label="Description (Optional)"
-              defaultValue={item.description}
-              onChange={(e) => onFieldChange(item.id, 'description', e.currentTarget.value)}
-            />
-            <Text color="dimmed" size="sm">
-              Type: {item.inputType}
-            </Text>
-
-            {/* IF the field type is medicine, then show the textarea for medication options the doctor can choose from. This is optional. */}
-            <If show={item.fieldType === 'medicine'}>
-              <Textarea
-                rows={4}
-                defaultValue={item.options?.join('; ') || ' '}
-                onChange={(e) =>
-                  onFieldOptionChange(
-                    item.id,
-                    e.currentTarget.value
-                      .split(';')
-                      .map((opt) => opt.trim())
-                      .filter((option) => option.trim() !== '')
-                  )
-                }
-                label="Medication options, separated by semicolon (;)"
-                placeholder="Enter the options - Leave empty if not applicable"
+  const items = state.map((item, index) => {
+    return (
+      <Draggable key={item.id} index={index} draggableId={item.id}>
+        {(provided, snapshot) => (
+          <div
+            className={cx(classes.item, { [classes.itemDragging]: snapshot.isDragging })}
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+          >
+            <div {...provided.dragHandleProps} className={classes.dragHandle}>
+              <IconGripVertical size="1.05rem" stroke={1.5} />
+            </div>
+            <div className="w-full">
+              <h3 className="text-lg font-bold">{upperFirst(item.inputType)} Input</h3>
+              <TextInput
+                label={'Name'}
+                defaultValue={item.name}
+                onChange={(e) => onFieldChange(item.id, 'name', e.currentTarget.value)}
               />
-            </If>
+              <TextInput
+                label="Description (Optional)"
+                defaultValue={item.description}
+                onChange={(e) => onFieldChange(item.id, 'description', e.currentTarget.value)}
+              />
+              <Text color="dimmed" size="sm">
+                Type: {item.inputType}
+              </Text>
 
-            {/* IF the field type is a select, dropdown, checkbox, or radio, then show the options input */}
-            <If
-              show={
-                ['select', 'dropdown', 'checkbox', 'radio'].includes(item.inputType) &&
-                item.fieldType !== 'diagnosis'
-              }
-            >
-              <Box py={4}>
-                {/*<MultiSelect
+              {/* IF the field type is medicine, then show the textarea for medication options the doctor can choose from. This is optional. */}
+              <If show={item.fieldType === 'medicine'}>
+                <Textarea
+                  rows={4}
+                  defaultValue={item.options?.join('; ') || ' '}
+                  onChange={(e) =>
+                    onFieldOptionChange(
+                      item.id,
+                      e.currentTarget.value
+                        .split(';')
+                        .map((opt) => opt.trim())
+                        .filter((option) => option.trim() !== '')
+                    )
+                  }
+                  label="Medication options, separated by semicolon (;)"
+                  placeholder="Enter the options - Leave empty if not applicable"
+                />
+              </If>
+
+              {/* IF the field type is a select, dropdown, checkbox, or radio, then show the options input */}
+              <If
+                show={
+                  ['select', 'dropdown', 'checkbox', 'radio'].includes(item.inputType) &&
+                  item.fieldType !== 'diagnosis'
+                }
+              >
+                <Box py={4}>
+                  {/*<MultiSelect
                     label="Add options"
                     data={fieldOptionsUnion(YesNoOptions, item.options || [])}
                     placeholder="Select items"
@@ -198,75 +198,74 @@ export function InputSettingsList({
                     }}
                   />
                   */}
-                <Text size="sm">Add Options</Text>
-                <CreatableSelect
-                  value={item.options}
-                  isMulti
-                  isSearchable
-                  onChange={(newValue, _) => onFieldOptionChange(item.id, newValue)}
-                  name="colors"
-                  options={fieldOptionsUnion(YesNoOptions, item.options || [])}
-                  className={
-                    colorScheme === 'light' ? 'light-select-container' : 'dark-select-container'
+                  <Text size="sm">Add Options</Text>
+                  <CreatableSelect
+                    value={item.options}
+                    isMulti
+                    isSearchable
+                    onChange={(newValue, _) => onFieldOptionChange(item.id, newValue)}
+                    name="colors"
+                    options={fieldOptionsUnion(YesNoOptions, item.options || [])}
+                    className={
+                      colorScheme === 'light' ? 'light-select-container' : 'dark-select-container'
+                    }
+                    // styles={{
+                    // input: {
+                    // background: "red"
+                    // }
+                    // }}
+                    classNamePrefix={colorScheme === 'light' ? 'light-select' : 'dark-select'}
+                  />
+                </Box>
+              </If>
+
+              {item.inputType === 'number' && (
+                <Checkbox
+                  className="py-2"
+                  onChange={(e) =>
+                    onFieldUnitChange(
+                      item.id,
+                      e.currentTarget.checked ? listToFieldOptions(measurementOptions) : false
+                    )
                   }
-                  // styles={{
-                  // input: {
-                  // background: "red"
-                  // }
-                  // }}
-                  classNamePrefix={colorScheme === 'light' ? 'light-select' : 'dark-select'}
+                  checked={item.units && item.units.length > 0}
+                  label="Has Units"
                 />
-              </Box>
-            </If>
+              )}
 
-            {item.inputType === 'number' && (
+              {item.fieldType === 'options' && item.inputType === 'select' && (
+                <Checkbox
+                  className="py-2"
+                  onChange={(e) => onFieldChange(item.id, 'multi', e.currentTarget.checked)}
+                  checked={item.multi}
+                  label="Supports multiple options"
+                />
+              )}
+
               <Checkbox
                 className="py-2"
-                onChange={(e) =>
-                  onFieldUnitChange(
-                    item.id,
-                    e.currentTarget.checked ? listToFieldOptions(measurementOptions) : false
-                  )
-                }
-                checked={item.units && item.units.length > 0}
-                label="Has Units"
+                onChange={(e) => onFieldChange(item.id, 'required', e.currentTarget.checked)}
+                checked={item.required}
+                label="Required Field"
               />
-            )}
 
-            {item.fieldType === 'options' && item.inputType === 'select' && (
-              <Checkbox
-                className="py-2"
-                onChange={(e) => onFieldChange(item.id, 'multi', e.currentTarget.checked)}
-                checked={item.multi}
-                label="Supports multiple options"
-              />
-            )}
-
-            <Checkbox
-              className="py-2"
-              onChange={(e) => onFieldChange(item.id, 'required', e.currentTarget.checked)}
-              checked={item.required}
-              label="Required Field"
-            />
-
-            <div className="pt-4">
-              <Button
-                onClick={() => onRemoveField(item.id)}
-                variant="subtle"
-                size="compact-xs"
-                color="red"
-                leftIcon={<IconTrash size="1rem" />}
-              >
-                Remove
-              </Button>
+              <div className="pt-4">
+                <Button
+                  onClick={() => onRemoveField(item.id)}
+                  variant="subtle"
+                  size="compact-xs"
+                  color="red"
+                  leftIcon={<IconTrash size="1rem" />}
+                >
+                  Remove
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </Draggable>
-  ));
-
-  console.log('items', state);
+        )}
+      </Draggable>
+    );
+  });
 
   return (
     /*     @ts-ignore */

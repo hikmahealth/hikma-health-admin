@@ -1,3 +1,5 @@
+import { FileField } from '../forms/fields';
+
 // INPUT TYPES FOR CUSTOM FORMS & WORKFLOWS
 export type InputType =
   | 'text'
@@ -34,6 +36,7 @@ export type FieldType =
   | 'dosage'
   | 'free-text'
   | 'input-group'
+  | 'file'
   | 'options'
   | 'date'
   | 'custom';
@@ -195,13 +198,15 @@ export type HHField =
   | DateField
   | OptionsField;
 
-export type HHFieldWithPosition =
-  | (BinaryField & { position: number })
-  | (TextField & { position: number })
-  | (MedicineField & { position: number })
-  | (DiagnosisField & { position: number })
-  | (OptionsField & { position: number })
-  | (DateField & { position: number });
+export type HHFieldWithPosition = (
+  | BinaryField
+  | TextField
+  | MedicineField
+  | DiagnosisField
+  | OptionsField
+  | DateField
+  | FileField
+) & { position: number };
 
 // Two letter iso639-2 language code
 // as seen here: https://www.loc.gov/standards/iso639-2/php/code_list.php

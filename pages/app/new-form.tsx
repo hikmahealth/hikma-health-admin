@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   Divider,
+  FileInput,
   Flex,
   Grid,
   Group,
@@ -35,6 +36,9 @@ import { InputSettingsList } from '../../components/FormBuilder/InputSettingsLis
 import { MedicineInput } from '../../components/FormBuilder/MedicineInput';
 import AppLayout from '../../components/Layout';
 import { languageOptions } from '../../data/languages';
+import { descFileField } from '../../forms/fields';
+import { createComponent } from '../../forms/utils';
+
 import {
   BinaryField,
   DoseUnit,
@@ -238,6 +242,24 @@ export const inputIconsMap = {
   date: <IconCalendar />,
 };
 
+const ComponentRegistry = [
+  createComponent(descFileField(), {
+    label: 'File',
+    icon: <IconCalendar />,
+    render: function ({ field }) {
+      return (
+        <FileInput
+          accept={field.allowedMimeTypes.join(',')}
+          multiple={field.multiple}
+          label={field.name}
+          required={field.required}
+          description={field.description}
+        />
+      );
+    },
+  }),
+];
+
 const inputAddButtons = (action: AddButtonProps) => [
   {
     label: 'Text',
@@ -288,7 +310,7 @@ type State = {
 type Action =
   /** Method used to override all internal fields with new fields. usefull for syncing with server/db */
   | { type: 'set-form-state'; payload: { fields: HHFieldWithPosition[] } }
-  | { type: 'add-field'; payload: HHFieldWithPosition }
+  | { type: 'add-field'; payload: HHField }
   | { type: 'remove-field'; payload: string }
   /** For a drop down, update its options that are rendered in a select */
   | { type: 'set-dropdown-options'; payload: { id: string; value: FieldOption[] } }
@@ -298,7 +320,6 @@ type Action =
   | { type: 'reorder-fields'; payload: { ids: string[] } };
 
 const reducer = (state: State, action: Action) => {
-  console.log('REDUCER: ', action.payload);
   switch (action.type) {
     case 'set-form-state':
       const { fields } = action.payload;
@@ -308,12 +329,14 @@ const reducer = (state: State, action: Action) => {
           [curr.id]: curr,
         };
       }, {});
-      console.log({ formState });
       return formState;
     case 'add-field':
       return {
         ...state,
-        [action.payload.id]: action.payload,
+        [action.payload.id]: {
+          position: Object.keys(state).length, // adds position after adding field
+          ...action.payload,
+        },
       };
     case 'remove-field':
       const newState = { ...state };
@@ -441,7 +464,6 @@ export default function NewFormBuilder() {
   }, [formId]);
 
   const addField = (fieldType: FieldType, inputType: InputType) => () => {
-    console.log({ fieldType, inputType });
     switch (fieldType) {
       case 'binary':
         // dispatch({ type: "add-field", payload: createBinaryField() }
@@ -451,7 +473,6 @@ export default function NewFormBuilder() {
         dispatch({ type: 'add-field', payload: createDateField('Date', '', inputType) });
         break;
       case 'free-text':
-        console.log('free-text');
         dispatch({ type: 'add-field', payload: createTextField('', '', inputType) });
         // setFields([...fields, createTextField()]);
         break;
@@ -466,6 +487,12 @@ export default function NewFormBuilder() {
       case 'diagnosis':
         dispatch({ type: 'add-field', payload: createDiagnosisField() });
         break;
+    }
+
+    // using component registry
+    const component = ComponentRegistry.find((d) => d.instance.fieldType === fieldType);
+    if (component) {
+      dispatch({ type: 'add-field', payload: component.instance });
     }
   };
 
@@ -492,6 +519,7 @@ export default function NewFormBuilder() {
   const handleFieldsReorder = (ids: string[]) => {
     dispatch({ type: 'reorder-fields', payload: { ids } });
   };
+
   const dndData = sortBy(Object.values(state), ['position']).map((field) => ({
     ...field,
   }));
@@ -649,6 +677,17 @@ export default function NewFormBuilder() {
                 <DiagnosisSelect key={field.id + '_' + (field.position || idx)} field={field} />
               );
             } else {
+              // FUTURE: might want to pass the component into state tree
+              // instead of ALWAYS doing a .find
+              const component = ComponentRegistry.find((d) => d.key === field.fieldType);
+              if (component) {
+                // this doesn't work properly
+                // name isn't being populated. please check this
+                return (
+                  <component.render key={field.id + '_' + (field.position || idx)} field={field} />
+                );
+              }
+
               return null;
             }
           })}
@@ -673,6 +712,19 @@ const AddFormInputButtons = React.memo(
             {button.label}
           </Button>
         ))}
+        <>
+          {ComponentRegistry.map(({ button, instance, render }) => (
+            <Button
+              size="md"
+              key={instance.fieldType}
+              onClick={addField(instance.fieldType, instance.inputType)}
+              leftIcon={button.icon}
+              className="primary"
+            >
+              {button.label}
+            </Button>
+          ))}
+        </>
       </Flex>
     );
   }
