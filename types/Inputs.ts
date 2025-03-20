@@ -196,17 +196,10 @@ export type HHField =
   | MedicineField
   | DiagnosisField
   | DateField
-  | OptionsField;
-
-export type HHFieldWithPosition = (
-  | BinaryField
-  | TextField
-  | MedicineField
-  | DiagnosisField
   | OptionsField
-  | DateField
-  | FileField
-) & { position: number };
+  | FileField;
+
+export type HHFieldWithPosition = HHField & { position: number };
 
 // Two letter iso639-2 language code
 // as seen here: https://www.loc.gov/standards/iso639-2/php/code_list.php

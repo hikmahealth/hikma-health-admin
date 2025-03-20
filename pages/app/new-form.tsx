@@ -36,7 +36,7 @@ import { InputSettingsList } from '../../components/FormBuilder/InputSettingsLis
 import { MedicineInput } from '../../components/FormBuilder/MedicineInput';
 import AppLayout from '../../components/Layout';
 import { languageOptions } from '../../data/languages';
-import { descFileField } from '../../forms/fields';
+import { fieldFile } from '../../forms/fields';
 import { createComponent } from '../../forms/utils';
 
 import {
@@ -243,13 +243,13 @@ export const inputIconsMap = {
 };
 
 const ComponentRegistry = [
-  createComponent(descFileField(), {
+  createComponent(fieldFile(), {
     label: 'File',
     icon: <IconCalendar />,
     render: function ({ field }) {
       return (
         <FileInput
-          accept={field.allowedMimeTypes.join(',')}
+          accept={field.allowedMimeTypes ? field.allowedMimeTypes.join(',') : undefined}
           multiple={field.multiple}
           label={field.name}
           required={field.required}
@@ -415,16 +415,12 @@ export default function NewFormBuilder() {
     if (!formId) return;
     const token = localStorage.getItem('token');
     axios
-      .get(
-        `${HIKMA_API}/admin_api/get_event_form?id=${formId}`,
-
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: String(token),
-          },
-        }
-      )
+      .get(`${HIKMA_API}/admin_api/get_event_form?id=${formId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: String(token),
+        },
+      })
       .then((res) => {
         if (!res.data?.event_form) {
           alert('This form does not seem to exist. Contact support.');
