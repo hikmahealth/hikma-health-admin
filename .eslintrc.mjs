@@ -3,9 +3,9 @@
  */
 export default {
   extends: ['mantine', 'plugin:jest/recommended', 'plugin:prettier/recommended'],
-  plugins: ['testing-library', 'jest'],
   overrides: [
     {
+      plugins: ['testing-library', 'jest'],
       files: ['**/?(*.)+(spec|test).[jt]s?(x)'],
       extends: ['plugin:testing-library/react'],
     },
