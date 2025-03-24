@@ -1,5 +1,5 @@
 /* eslint-env node, browser */
-import type { TwindConfig, TwindUserConfig } from '@twind/core';
+import type { BaseTheme, TwindConfig, TwindUserConfig } from '@twind/core';
 import type { AppProps } from 'next/app';
 import type { ComponentType } from 'react';
 
@@ -8,17 +8,17 @@ import { createElement } from 'react';
 
 export default install;
 
-function install(config: TwindConfig | TwindUserConfig): React.JSXElementConstructor;
+function install<Theme extends BaseTheme = BaseTheme>(config: TwindConfig<Theme> | TwindUserConfig<Theme>): React.JSXElementConstructor<unknown>;
 
-function install<Props, Component>(
-  config: TwindConfig | TwindUserConfig,
-  AppComponent: React.JSXElementConstructor & Component,
+function install<Props, Component, Theme extends BaseTheme = BaseTheme>(
+  config: TwindConfig<Theme> | TwindUserConfig<Theme>,
+  AppComponent: React.JSXElementConstructor<Props> & Component,
   isProduction?: boolean
 ): Component;
 
-function install<Props, Component>(
-  config: TwindConfig | TwindUserConfig,
-  AppComponent: React.JSXElementConstructor & Component = TwindApp as any,
+function install<Props, Component, Theme extends BaseTheme = BaseTheme>(
+  config: TwindConfig<Theme> | TwindUserConfig<Theme>,
+  AppComponent: React.JSXElementConstructor<Props> & Component = TwindApp as any,
   isProduction = process.env.NODE_ENV == 'production'
 ): Component {
   install$(config as TwindUserConfig, isProduction);

@@ -1,4 +1,4 @@
-import type { DocumentContext } from 'next/document';
+import type { DocumentContext, DocumentInitialProps } from 'next/document';
 
 import { extract } from '@twind/core';
 import Document from 'next/document';
@@ -19,7 +19,7 @@ function install<Component extends typeof Document = typeof Document>(
   return class TwindDocument extends BaseComponent {
     static getInitialProps(
       ctx: DocumentContext & {
-        defaultGetInitialProps: (ctx: DocumentContext, options?: { nonce?: string }) => Promise;
+        defaultGetInitialProps: (ctx: DocumentContext, options?: { nonce?: string }) => Promise<DocumentInitialProps>;
       }
     ) {
       const defaultGetInitialProps = ctx.defaultGetInitialProps.bind(ctx);

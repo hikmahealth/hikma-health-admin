@@ -111,6 +111,7 @@ export function LinksGroup({ icon: Icon, label, initiallyOpened, links, link }: 
           <Group justify="space-between" gap={0}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <ThemeIcon variant="light" size={30}>
+                {/* @ts-expect-error size error */}
                 <Icon size="1.1rem" />
               </ThemeIcon>
               <Box ml="md">{label}</Box>

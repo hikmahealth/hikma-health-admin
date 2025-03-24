@@ -19,7 +19,7 @@ type Clinic = {
  * @param name
  * @returns
  */
-const updateClinic = async (id: string, token: string, name: string): Promise => {
+const updateClinic = async (id: string, token: string, name: string): Promise<Clinic> => {
   try {
     const response = await axios.put(
       `${HIKMA_API}/v1/admin/clinics/${id}`,

@@ -7,7 +7,7 @@ import { Clinic, useClinicsList } from '../../hooks/useClinicsList';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
-const deleteClinic = async (id: string, token: string): Promise => {
+const deleteClinic = async (id: string, token: string): Promise<Clinic> => {
   const response = await fetch(`${HIKMA_API}/v1/admin/clinics/${id}`, {
     method: 'DELETE',
     headers: {

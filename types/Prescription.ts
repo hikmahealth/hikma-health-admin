@@ -26,7 +26,7 @@ export type Prescription = {
   status: PrescriptionStatus; // defaults to 'pending'
   items: any[]; // JSON array
   notes: string;
-  metadata: Record; // JSON object
+  metadata: Record<string, any>; // JSON object
   is_deleted: boolean;
   created_at: string; // ISO DateTime string with timezone
   updated_at: string; // ISO DateTime string with timezone

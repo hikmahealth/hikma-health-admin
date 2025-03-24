@@ -166,14 +166,14 @@ export default function ExportsPage() {
   }, [patientRegistrationForm]);
 
   /* mapping of columns to their current label */
-  const registrationColToField: Record = useMemo(() => {
+  const registrationColToField: Record<string, string> = useMemo(() => {
     if (patientRegistrationForm === null) return {};
     const { fields } = patientRegistrationForm;
     return fields.reduce((prev, curr) => {
       const key = curr.column;
       prev[key] = getTranslation(curr.label, 'en') || curr.column || '';
       return prev;
-    }, {} as Record);
+    }, {} as Record<string, string>);
   }, [patientRegistrationForm]);
 
   const { columnIds, eventRows }: { columnIds: string[]; eventRows: MultipleEventRows['values'] } =

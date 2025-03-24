@@ -16,7 +16,7 @@ import { baseFields, getTranslation } from './registration-form';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
-export const getAllPatients = async (token: string): Promise => {
+export const getAllPatients = async (token: string): Promise<Patient[]> => {
   const response = await fetch(`${HIKMA_API}/admin_api/all_patients`, {
     method: 'GET',
     headers: {
@@ -110,25 +110,26 @@ export default function PatientsList() {
   }, [patients.length]);
 
   /* mapping of field_ids to their current label */
-  const registrationIdToField: Record = useMemo(() => {
-    if (patientRegistrationForm === null) return {};
-    const { fields } = patientRegistrationForm;
-    return fields.reduce((prev, curr) => {
-      const key = curr.id;
-      prev[key] = getTranslation(curr.label, 'en') || '';
-      return prev;
-    }, {} as Record);
-  }, [patientRegistrationForm]);
+  // TOMBSTONE: March 23, 2025
+  // const registrationIdToField: Record = useMemo(() => {
+  //   if (patientRegistrationForm === null) return {};
+  //   const { fields } = patientRegistrationForm;
+  //   return fields.reduce((prev, curr) => {
+  //     const key = curr.id;
+  //     prev[key] = getTranslation(curr.label, 'en') || '';
+  //     return prev;
+  //   }, {} as Record);
+  // }, [patientRegistrationForm]);
 
   /* mapping of columns to their current label */
-  const registrationColToField: Record = useMemo(() => {
+  const registrationColToField: Record<string, string> = useMemo(() => {
     if (patientRegistrationForm === null) return {};
     const { fields } = patientRegistrationForm;
     return fields.reduce((prev, curr) => {
       const key = curr.column;
       prev[key] = getTranslation(curr.label, 'en') || curr.column || '';
       return prev;
-    }, {} as Record);
+    }, {} as Record<string, string>);
   }, [patientRegistrationForm]);
 
   /** Download all the loaded patients */
@@ -184,6 +185,7 @@ export default function PatientsList() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     // get the search query
+    // @ts-expect-error Property 'elements' does not exist on type 'EventTarget & Element'.
     const searchInput = e.currentTarget.elements.namedItem('search') as HTMLInputElement;
     const searchQuery = searchInput.value;
 

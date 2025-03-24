@@ -22,15 +22,15 @@ type Prettify<T> = {
 
 type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-export const withRequiredFields = <R extends Record<string, any>>() =>
+export const withRequiredFields = <R extends Record<string, any> & { id?: string }>() =>
   function <D extends Optional<Required<R> & Omit<RequiredFieldDescription, keyof R>, 'id'>>(
     description: D
   ) {
     if (!('id' in description) || typeof description['id'] !== 'string') {
-      description['id'] = nanoid();
+      description['id'] = nanoid() as R['id'] & string;
     }
 
-    return description as Prettify<{ id: string } & typeof description>;
+    return description as Prettify<{ id: R['id'] & string } & typeof description>;
   };
 
 export const field = withRequiredFields();

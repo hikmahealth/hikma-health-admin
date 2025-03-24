@@ -58,7 +58,7 @@ export type RegistrationForm = {
   id: string;
   name: string;
   fields: RegistrationFormField[];
-  metadata: Record;
+  metadata: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -93,7 +93,7 @@ Given a translation object, create options for a dropdown
 export function translationObjectOptions(
   translations: TranslationObject[],
   language: LanguageKey
-): Array {
+): Array<{ label: string; value: string }> {
   return translations
     .map((t) => getTranslation(t, language))
     .map((st) => ({
@@ -697,12 +697,16 @@ export default function PatientRegistrationForm() {
           })),
           // @ts-ignore
           createdAt:
+            // @ts-ignore
             form.createdAt || form.created_at
+              // @ts-ignore
               ? new Date(form.createdAt || form.created_at)
               : new Date(),
           // @ts-ignore
           updatedAt:
+            // @ts-ignore
             form.updatedAt || form.updated_at
+              // @ts-ignore
               ? new Date(form.updatedAt || form.updated_at)
               : new Date(),
           metadata: form.metadata,

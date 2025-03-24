@@ -7,7 +7,7 @@ import { User } from '../../types/User';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
-const addUser = async (user: User & { password: string }, token: string): Promise => {
+const addUser = async (user: User & { password: string }, token: string): Promise<User> => {
   const response = await fetch(`${HIKMA_API}/admin_api/user`, {
     method: 'POST',
     headers: {
@@ -62,7 +62,7 @@ export default function NewUser() {
       .catch((error) => console.error(error));
   }, []);
 
-  const updateField = (e: React.ChangeEvent) => {
+  const updateField = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUser({
       ...user,
       [e.target.name]: e.target.value,
