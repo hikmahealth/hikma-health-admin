@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { Button, Select, TextInput } from '@mantine/core';
+import axios from 'axios';
 import { upperFirst } from 'lodash';
 import { useRouter } from 'next/router';
-import { TextInput, Select, Button } from '@mantine/core';
+import React, { useEffect, useState } from 'react';
 import AppLayout from '../../components/Layout';
+import { useClinicsList } from '../../hooks/useClinicsList';
 import { User } from '../../types/User';
 import { userRoles } from './new-user';
-import axios from 'axios';
-import { useClinicsList } from '../../hooks/useClinicsList';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 

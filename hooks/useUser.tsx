@@ -32,7 +32,7 @@ export function useAuthStatus() {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token') || "";
+    const token = localStorage.getItem('token') || '';
     setLoading(true);
     if (token) {
       fetch(`${HIKMA_API}/admin_api/is_authenticated`, {
@@ -45,7 +45,7 @@ export function useAuthStatus() {
           return res.json();
         })
         .then((data) => {
-          console.log("DATAL ", data)
+          console.log('DATAL ', data);
           if (data && data.message.toLowerCase() === 'ok') {
             setAuthenticated(true);
           }

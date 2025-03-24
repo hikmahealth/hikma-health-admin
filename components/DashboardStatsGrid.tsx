@@ -1,16 +1,13 @@
-import { Group, Paper, SimpleGrid, Text, rem } from '@mantine/core';
+import { Group, Paper, rem, SimpleGrid, Text } from '@mantine/core';
 import { createStyles } from '@mantine/emotion';
 import {
-  IconUserPlus,
-  IconDiscount2,
-  IconReceipt2,
-  IconCoin,
-  IconIdBadge,
-  IconUserCircle,
-  IconTimelineEvent,
-  IconArrowUpRight,
   IconArrowDownRight,
+  IconArrowUpRight,
   IconForms,
+  IconIdBadge,
+  IconTimelineEvent,
+  IconUserCircle,
+  IconUserPlus,
 } from '@tabler/icons-react';
 
 const useStyles = createStyles((theme, _, u) => ({

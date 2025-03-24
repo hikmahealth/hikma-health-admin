@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useMemo } from 'react';
 import { ActionIcon, Box, Button, Loader, rem, Table, TextInput } from '@mantine/core';
-import AppLayout from '../../../components/Layout';
-import { MultiplePatientRows, Patient } from '../../../types/Patient';
-import { differenceBy, replace } from 'lodash';
+import { notifications } from '@mantine/notifications';
+import { IconArrowRight, IconPlus, IconSearch, IconX } from '@tabler/icons-react';
+import axios from 'axios';
 import { format } from 'date-fns';
+import { differenceBy, replace } from 'lodash';
+import { useRouter } from 'next/router';
+import React, { useEffect, useMemo, useState } from 'react';
+import AppLayout from '../../../components/Layout';
+import { usePatientRegistrationForm } from '../../../hooks/usePatientRegistrationForm';
+import { MultiplePatientRows, Patient } from '../../../types/Patient';
+import { orderedList } from '../../../utils/misc';
+import { formatPatientsIntoRows } from '../../../utils/patient';
 import { tableToCSV } from '../exports';
 import { baseFields, getTranslation } from './registration-form';
-import axios from 'axios';
-import { IconArrowRight, IconPlus, IconSearch, IconX } from '@tabler/icons-react';
-import { useRouter } from 'next/router';
-import { usePatientRegistrationForm } from '../../../hooks/usePatientRegistrationForm';
-import { notifications } from '@mantine/notifications';
-import { formatPatientsIntoRows } from '../../../utils/patient';
-import { orderedList } from '../../../utils/misc';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
@@ -110,31 +110,26 @@ export default function PatientsList() {
   }, [patients.length]);
 
   /* mapping of field_ids to their current label */
-  const registrationIdToField: Record<string, any> = useMemo(() => {
-    if (patientRegistrationForm === null) return {};
-    const { fields } = patientRegistrationForm;
-    return fields.reduce(
-      (prev, curr) => {
-        const key = curr.id;
-        prev[key] = getTranslation(curr.label, 'en') || '';
-        return prev;
-      },
-      {} as Record<string, any>
-    );
-  }, [patientRegistrationForm]);
+  // TOMBSTONE: March 23, 2025
+  // const registrationIdToField: Record = useMemo(() => {
+  //   if (patientRegistrationForm === null) return {};
+  //   const { fields } = patientRegistrationForm;
+  //   return fields.reduce((prev, curr) => {
+  //     const key = curr.id;
+  //     prev[key] = getTranslation(curr.label, 'en') || '';
+  //     return prev;
+  //   }, {} as Record);
+  // }, [patientRegistrationForm]);
 
   /* mapping of columns to their current label */
-  const registrationColToField: Record<string, any> = useMemo(() => {
+  const registrationColToField: Record<string, string> = useMemo(() => {
     if (patientRegistrationForm === null) return {};
     const { fields } = patientRegistrationForm;
-    return fields.reduce(
-      (prev, curr) => {
-        const key = curr.column;
-        prev[key] = getTranslation(curr.label, 'en') || curr.column || '';
-        return prev;
-      },
-      {} as Record<string, any>
-    );
+    return fields.reduce((prev, curr) => {
+      const key = curr.column;
+      prev[key] = getTranslation(curr.label, 'en') || curr.column || '';
+      return prev;
+    }, {} as Record<string, string>);
   }, [patientRegistrationForm]);
 
   /** Download all the loaded patients */
@@ -187,9 +182,10 @@ export default function PatientsList() {
     router.push('/app/patients/register');
   };
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     // get the search query
+    // @ts-expect-error Property 'elements' does not exist on type 'EventTarget & Element'.
     const searchInput = e.currentTarget.elements.namedItem('search') as HTMLInputElement;
     const searchQuery = searchInput.value;
 

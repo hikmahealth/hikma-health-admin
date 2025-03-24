@@ -1,5 +1,5 @@
-import install from '../lib/twind-with-next/document';
 import NextDocument, { Head, Html, Main, NextScript } from 'next/document';
+import install from '../lib/twind-with-next/document';
 // import { createGetInitialProps } from '@mantine/next';
 import createEmotionServer from '@emotion/server/create-instance';
 import { ColorSchemeScript } from '@mantine/core';

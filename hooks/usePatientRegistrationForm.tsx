@@ -1,6 +1,6 @@
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { RegistrationForm } from '../pages/app/patients/registration-form';
-import axios from 'axios';
 import { mapObjectValues } from '../utils/misc';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;

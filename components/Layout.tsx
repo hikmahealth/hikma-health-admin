@@ -1,40 +1,32 @@
-import { useState, useEffect } from 'react';
 import {
   AppShell,
+  Burger,
+  Loader,
+  rem,
+  ScrollArea,
+  Text,
   // Navbar,
   Title,
-  Text,
-  Burger,
   useMantineTheme,
-  Group,
-  Box,
-  UnstyledButton,
-  ScrollArea,
-  rem,
-  Avatar,
-  Loader,
 } from '@mantine/core';
 import { createStyles } from '@mantine/emotion';
 import {
+  IconAdjustments,
+  IconBuildingHospital,
   IconCalendarStats,
-  IconChevronLeft,
-  IconChevronRight,
-  IconNotes,
+  IconChartInfographic,
+  IconDoorExit,
   IconForms,
   IconGauge,
-  IconAdjustments,
   IconHaze,
-  IconDoorExit,
-  IconBuildingHospital,
-  IconUsers,
-  IconFileReport,
   IconMedicineSyrup,
-  IconChartSankey,
-  IconChartInfographic,
+  IconNotes,
+  IconUsers,
 } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
-import { LinksGroup } from './LinksGroup';
+import { useEffect, useState } from 'react';
 import { useAuthStatus } from '../hooks/useUser';
+import { LinksGroup } from './LinksGroup';
 
 const navLinks = [
   { label: 'Dashboard', icon: IconGauge, link: '/app' },
@@ -138,7 +130,6 @@ export default function AppLayout(props: Props) {
 
   const currentPath = router.pathname;
 
-
   const { loadingAuth, authenticated } = useAuthStatus();
   useEffect(() => {
     if (!authenticated && !loadingAuth) {
@@ -170,7 +161,11 @@ export default function AppLayout(props: Props) {
       })}
       // navbarOffsetBreakpoint="sm"
       // asideOffsetBreakpoint="sm"
-      navbar={{ width: { sm: 200, lg: 300 }, breakpoint: 'md', collapsed: { mobile: !opened, desktop: currentPath.includes('explorer') ? !opened : false } }}
+      navbar={{
+        width: { sm: 200, lg: 300 },
+        breakpoint: 'md',
+        collapsed: { mobile: !opened, desktop: currentPath.includes('explorer') ? !opened : false },
+      }}
       header={{ height: { base: 50, md: 70 } }}
     >
       <AppShell.Header p="md">

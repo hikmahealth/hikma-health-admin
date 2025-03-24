@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Loader, ActionIcon, Table } from '@mantine/core';
-import { IconTrash, IconEdit, IconPlus } from '@tabler/icons-react';
+import { ActionIcon, Loader, Table } from '@mantine/core';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
-import AppLayout from '../../components/Layout';
+import { useEffect, useState } from 'react';
 import { FAB } from '../../components/FAB';
-import { User } from '../../types/User';
+import AppLayout from '../../components/Layout';
 import { useClinicsList } from '../../hooks/useClinicsList';
+import { User } from '../../types/User';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
@@ -55,12 +55,12 @@ export default function UsersList() {
     const token = localStorage.getItem('token');
     if (token) {
       getUsers(token)
-        .then((users) => {
+        .then((users: User[]) => {
           console.log({ users });
           setUsers(users);
           setLoading(false);
         })
-        .catch((err) => console.log(err));
+        .catch((err: any) => console.log(err));
     }
   }, []);
 
@@ -78,13 +78,12 @@ export default function UsersList() {
     const token = localStorage.getItem('token');
     if (token) {
       deleteUser(email, token)
-        .then((res) => {
-          console.log(res);
+        .then((res: any) => {
           // remove user from state
           const newUsers = users.filter((user) => user.email !== email);
           setUsers(newUsers);
         })
-        .catch((err) => console.log(err));
+        .catch((err: any) => console.log(err));
     }
   };
 

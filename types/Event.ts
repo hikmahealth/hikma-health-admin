@@ -38,12 +38,12 @@ export type Event = {
 
 export type EventRow = {
   columns: string[]; // a list of the column names (human readble prefferable)
-  values: Array<string | boolean | Date | number>; // (list of the values)
+  values: Array<string | number | boolean | Date | ICD11Diagnosis[] | Medication[]>; // (list of the values)
 };
 
 export type MultipleEventRows = {
   columns: string[];
-  values: Array<Record<string, string | number | Date>>;
+  values: Array<Record<string, string | number | boolean | Date | ICD11Diagnosis[] | Medication[]>>;
 };
 
 type FormDataEntry = {
@@ -71,8 +71,8 @@ export type EventResponse = {
         string_value: null | string;
       };
     };
-    additional_data: Record<string, any>;
-    metadata: Record<string, any>;
+    additional_data: Record<string, string | number | boolean | Date | ICD11Diagnosis[] | Medication[]>;
+    metadata: Record<string, string | number | boolean | Date | ICD11Diagnosis[] | Medication[]>;
     [key: string]: any;
   };
   [key: string]: any;

@@ -45,9 +45,7 @@ export const camelCaseKeys = <T extends Record<string, any>>(obj: T): T => {
  * @param {Array<{ label: string, value: string }>} options - The array of options to deduplicate.
  * @returns {Array<{ label: string, value: string }>} The deduplicated array of options.
  */
-export function deduplicateOptions(
-  options: Array<{ label: string; value: string }>
-): Array<{ label: string; value: string }> {
+export function deduplicateOptions(options: Array<{ label: string; value: string }>): Array<{ label: string; value: string }> {
   const seenValues = new Set<string>();
   const deduplicatedOptions: Array<{ label: string; value: string }> = [];
 
@@ -184,10 +182,7 @@ export const tryParseDate = (input: unknown, defaultDate?: Date): Date => {
  * @param {number} topN - The number of top entries to keep.
  * @returns {Record<string, number>} A new object with the top N entries and an "other" key.
  */
-export function getTopNWithOther(
-  obj: Record<string, number>,
-  topN: number
-): Record<string, number> {
+export function getTopNWithOther(obj: Record<string, number>, topN: number): Record<string, number> {
   const sortedEntries = Object.entries(obj).sort((a, b) => b[1] - a[1]);
   const topEntries = sortedEntries.slice(0, topN);
   const otherSum = sortedEntries.slice(topN).reduce((sum, [, value]) => sum + value, 0);

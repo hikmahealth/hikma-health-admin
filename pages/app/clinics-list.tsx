@@ -1,17 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Loader, ActionIcon, Table, Button } from '@mantine/core';
-import { IconTrash, IconEdit, IconPlus, IconCircleMinus } from '@tabler/icons-react';
+import { Button, Loader, Table } from '@mantine/core';
+import { IconCircleMinus, IconEdit } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
-import AppLayout from '../../components/Layout';
 import { FAB } from '../../components/FAB';
-import { User } from '../../types/User';
-import { camelCaseKeys } from '../../utils/misc';
+import AppLayout from '../../components/Layout';
 import { Clinic, useClinicsList } from '../../hooks/useClinicsList';
-import axios from 'axios';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
-const deleteClinic = async (id: string, token: string): Promise<any> => {
+const deleteClinic = async (id: string, token: string): Promise<Clinic> => {
   const response = await fetch(`${HIKMA_API}/v1/admin/clinics/${id}`, {
     method: 'DELETE',
     headers: {

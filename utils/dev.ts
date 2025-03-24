@@ -1,5 +1,4 @@
 // import { faker } from '@faker-js/faker';
-import { Patient } from '../types/Patient';
 // import { format } from 'date-fns';
 
 // /**
@@ -26,3 +25,6 @@ import { Patient } from '../types/Patient';
 //     }
 //     return null;
 // }
+
+
+export { }

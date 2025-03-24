@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import AppLayout from '../../components/Layout';
+import { Box, Button, Collapse, Flex, Group, Text } from '@mantine/core';
+import { DatePickerInput } from '@mantine/dates';
+import { useDisclosure } from '@mantine/hooks';
 import axios from 'axios';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
-import { Box, Text, Collapse, Group, Button, Flex } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { DatePickerInput } from '@mantine/dates';
+import { useEffect, useState } from 'react';
+import AppLayout from '../../components/Layout';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { MultiSelect } from '@mantine/core';
+import { useState } from 'react';
 import icd11 from '../../data/icd11-xs.js'; // Importing the extra small ICD10 JSON file
 import { HHField, HHFieldWithPosition } from '../../types/Inputs';
 

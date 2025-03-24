@@ -1,64 +1,57 @@
 // @ts-nocheck
-import React, { useState, useReducer, useEffect, useMemo } from 'react';
 import {
-  Menu,
   Button,
-  Grid,
-  TextInput,
-  Divider,
-  Paper,
-  Flex,
-  Text,
   Checkbox,
+  Divider,
+  FileInput,
+  Flex,
+  Grid,
   Group,
-  NumberInput,
-  Textarea,
-  Select,
-  Radio,
   MultiSelect,
+  NumberInput,
+  Radio,
+  Select,
+  Textarea,
+  TextInput,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import { v1 as uuidV1 } from 'uuid';
-import axios from 'axios';
 import {
-  IconSettings,
-  IconSelector,
-  IconTextSize,
+  IconCalendar,
+  IconCheckbox,
+  IconList,
+  IconMedicineSyrup,
   IconNotes,
   IconNumbers,
-  IconList,
-  IconCheckbox,
-  IconMedicineSyrup,
-  IconDatabase,
-  IconCalendar,
-  IconPhoto,
-  IconMessageCircle,
-  IconTrash,
-  IconArrowsLeftRight,
   IconReportMedical,
+  IconTextSize,
 } from '@tabler/icons-react';
-import { omit, eq, sortBy } from 'lodash';
-import { ColorSchemeToggle } from '../../components/ColorSchemeToggle/ColorSchemeToggle';
+import axios from 'axios';
+import { eq, omit, sortBy } from 'lodash';
+import { nanoid } from 'nanoid';
+import { useRouter } from 'next/router';
+import React, { useEffect, useReducer, useState } from 'react';
+import { v1 as uuidV1 } from 'uuid';
+import { DiagnosisSelect } from '../../components/FormBuilder/DiagnosisPicker';
 import { InputSettingsList } from '../../components/FormBuilder/InputSettingsList';
 import { MedicineInput } from '../../components/FormBuilder/MedicineInput';
+import AppLayout from '../../components/Layout';
+import { languageOptions } from '../../data/languages';
+import { fieldFile } from '../../forms/fields';
+import { createComponent } from '../../forms/utils';
+
 import {
-  TextField,
-  HHFieldBase,
   BinaryField,
-  MedicineField,
+  DoseUnit,
+  FieldOption,
+  FieldType,
   HHField,
+  HHFieldBase,
   HHFieldWithPosition,
   InputType,
+  MedicineField,
   OptionsField,
-  FieldType,
-  FieldOption,
-  DoseUnit,
+  TextField,
 } from '../../types/Inputs';
-import AppLayout from '../../components/Layout';
-import { DiagnosisSelect } from '../../components/FormBuilder/DiagnosisPicker';
-import { languageOptions } from '../../data/languages';
-import { useRouter } from 'next/router';
-import { nanoid } from 'nanoid';
 import { deduplicateOptions, safeJSONParse } from '../../utils/misc';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
@@ -232,7 +225,7 @@ const createDateField = (name = '', description = '', inputType = 'date'): DateF
   };
 };
 
-let inputFieldOptions: Partial<FieldType>[] = ['binary', 'free-text', 'medicine'];
+let inputFieldOptions: Partial[] = ['binary', 'free-text', 'medicine'];
 
 type AddButtonProps = {
   onClick: (fieldType: FieldType, inputType: InputType) => void;
@@ -248,6 +241,24 @@ export const inputIconsMap = {
   checkbox: <IconCheckbox />,
   date: <IconCalendar />,
 };
+
+const ComponentRegistry = [
+  createComponent(fieldFile(), {
+    label: 'File',
+    icon: <IconCalendar />,
+    render: function ({ field }) {
+      return (
+        <FileInput
+          accept={field.allowedMimeTypes ? field.allowedMimeTypes.join(',') : undefined}
+          multiple={field.multiple}
+          label={field.name}
+          required={field.required}
+          description={field.description}
+        />
+      );
+    },
+  }),
+];
 
 const inputAddButtons = (action: AddButtonProps) => [
   {
@@ -299,7 +310,7 @@ type State = {
 type Action =
   /** Method used to override all internal fields with new fields. usefull for syncing with server/db */
   | { type: 'set-form-state'; payload: { fields: HHFieldWithPosition[] } }
-  | { type: 'add-field'; payload: HHFieldWithPosition }
+  | { type: 'add-field'; payload: HHField }
   | { type: 'remove-field'; payload: string }
   /** For a drop down, update its options that are rendered in a select */
   | { type: 'set-dropdown-options'; payload: { id: string; value: FieldOption[] } }
@@ -309,7 +320,6 @@ type Action =
   | { type: 'reorder-fields'; payload: { ids: string[] } };
 
 const reducer = (state: State, action: Action) => {
-  console.log('REDUCER: ', action.payload);
   switch (action.type) {
     case 'set-form-state':
       const { fields } = action.payload;
@@ -319,12 +329,14 @@ const reducer = (state: State, action: Action) => {
           [curr.id]: curr,
         };
       }, {});
-      console.log({ formState });
       return formState;
     case 'add-field':
       return {
         ...state,
-        [action.payload.id]: action.payload,
+        [action.payload.id]: {
+          position: Object.keys(state).length, // adds position after adding field
+          ...action.payload,
+        },
       };
     case 'remove-field':
       const newState = { ...state };
@@ -403,16 +415,12 @@ export default function NewFormBuilder() {
     if (!formId) return;
     const token = localStorage.getItem('token');
     axios
-      .get(
-        `${HIKMA_API}/admin_api/get_event_form?id=${formId}`,
-
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: String(token),
-          },
-        }
-      )
+      .get(`${HIKMA_API}/admin_api/get_event_form?id=${formId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: String(token),
+        },
+      })
       .then((res) => {
         if (!res.data?.event_form) {
           alert('This form does not seem to exist. Contact support.');
@@ -452,7 +460,6 @@ export default function NewFormBuilder() {
   }, [formId]);
 
   const addField = (fieldType: FieldType, inputType: InputType) => () => {
-    console.log({ fieldType, inputType });
     switch (fieldType) {
       case 'binary':
         // dispatch({ type: "add-field", payload: createBinaryField() }
@@ -462,7 +469,6 @@ export default function NewFormBuilder() {
         dispatch({ type: 'add-field', payload: createDateField('Date', '', inputType) });
         break;
       case 'free-text':
-        console.log('free-text');
         dispatch({ type: 'add-field', payload: createTextField('', '', inputType) });
         // setFields([...fields, createTextField()]);
         break;
@@ -477,6 +483,12 @@ export default function NewFormBuilder() {
       case 'diagnosis':
         dispatch({ type: 'add-field', payload: createDiagnosisField() });
         break;
+    }
+
+    // using component registry
+    const component = ComponentRegistry.find((d) => d.instance.fieldType === fieldType);
+    if (component) {
+      dispatch({ type: 'add-field', payload: component.instance });
     }
   };
 
@@ -503,6 +515,7 @@ export default function NewFormBuilder() {
   const handleFieldsReorder = (ids: string[]) => {
     dispatch({ type: 'reorder-fields', payload: { ids } });
   };
+
   const dndData = sortBy(Object.values(state), ['position']).map((field) => ({
     ...field,
   }));
@@ -527,7 +540,7 @@ export default function NewFormBuilder() {
     setLoadingSave(true);
     const token = localStorage.getItem('token') || '';
 
-    let result: Promise<any>;
+    let result: Promise;
 
     if (formId && formId.length > 5) {
       // a form is being edited.
@@ -660,6 +673,17 @@ export default function NewFormBuilder() {
                 <DiagnosisSelect key={field.id + '_' + (field.position || idx)} field={field} />
               );
             } else {
+              // FUTURE: might want to pass the component into state tree
+              // instead of ALWAYS doing a .find
+              const component = ComponentRegistry.find((d) => d.key === field.fieldType);
+              if (component) {
+                // this doesn't work properly
+                // name isn't being populated. please check this
+                return (
+                  <component.render key={field.id + '_' + (field.position || idx)} field={field} />
+                );
+              }
+
               return null;
             }
           })}
@@ -684,6 +708,19 @@ const AddFormInputButtons = React.memo(
             {button.label}
           </Button>
         ))}
+        <>
+          {ComponentRegistry.map(({ button, instance, render }) => (
+            <Button
+              size="md"
+              key={instance.fieldType}
+              onClick={addField(instance.fieldType, instance.inputType)}
+              leftIcon={button.icon}
+              className="primary"
+            >
+              {button.label}
+            </Button>
+          ))}
+        </>
       </Flex>
     );
   }

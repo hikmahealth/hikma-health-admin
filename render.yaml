@@ -12,6 +12,4 @@ services:
       - key: NEXT_PUBLIC_HIKMA_API
         # Replace 'YOUR_API_KEY_HERE' with the actual API key
         value: YOUR_API_KEY_HERE
-
-
 # Define any additional services or database configurations if needed

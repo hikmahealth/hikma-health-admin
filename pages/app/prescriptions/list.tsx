@@ -1,25 +1,22 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import AppLayout from '../../../components/Layout';
+import { Box, Button, Flex, Pagination, Select, Table } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { Box, Button, Flex, Loader, Pagination, Select, Table } from '@mantine/core';
-import { endOfDay, format, isValid, startOfDay } from 'date-fns';
 import { notifications } from '@mantine/notifications';
+import { endOfDay, format, isValid, startOfDay } from 'date-fns';
+import { useMemo, useRef, useState } from 'react';
+import AppLayout from '../../../components/Layout';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
+import { usePagination } from '@mantine/hooks';
 import axios from 'axios';
 import { upperFirst } from 'lodash';
-import { camelCaseKeys, safeJSONParse, tryParseDate } from '../../../utils/misc';
+import If from '../../../components/If';
 import { useClinicsList } from '../../../hooks/useClinicsList';
 import { Prescription, PrescriptionStatus, statusValues } from '../../../types/Prescription';
+import { camelCaseKeys, safeJSONParse, tryParseDate } from '../../../utils/misc';
 import { tableToCSV } from '../exports';
-import If from '../../../components/If';
-import { usePagination } from '@mantine/hooks';
 
-const getPrescriptions = async (
-  token: string,
-  filters: SearhFilters
-): Promise<DBPrescriptionItem[]> => {
+const getPrescriptions = async (token: string, filters: SearhFilters): Promise<Prescription[]> => {
   try {
     const response = await axios.get(`${HIKMA_API}/v1/admin/prescriptions/search`, {
       params: filters,
@@ -109,7 +106,10 @@ export default function PrescriptionsList() {
   const [prescriptions, setPrescriptions] = useState<DBPrescriptionItem[]>([]);
 
   const pageSize = useRef(30);
-  const pagination = usePagination({total: Math.ceil(prescriptions.length / pageSize.current), initialPage: 1});
+  const pagination = usePagination({
+    total: Math.ceil(prescriptions.length / pageSize.current),
+    initialPage: 1,
+  });
 
   const handleSearch = () => {
     const token = localStorage.getItem('token');
@@ -134,23 +134,27 @@ export default function PrescriptionsList() {
   };
 
   const togglePrescriptionStatus = (prescriptionId: string, status: PrescriptionStatus) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            setLoading(true);
-            updatePrescriptionStatus(token, prescriptionId, status).then(() => {
-                setPrescriptions(prescriptions.map(pres => pres.id === prescriptionId ? { ...pres, status } : pres));
-                handleSearch();
-            }).catch(error => {
-                console.error(error);
-                notifications.show({
-                    title: 'Error',
-                    message: 'Failed to update prescription status',
-                    color: 'red',
-                    position: 'top-right'
-                });
-                setLoading(false);
-            });
-        }
+    const token = localStorage.getItem('token');
+    if (token) {
+      setLoading(true);
+      updatePrescriptionStatus(token, prescriptionId, status)
+        .then(() => {
+          setPrescriptions(
+            prescriptions.map((pres) => (pres.id === prescriptionId ? { ...pres, status } : pres))
+          );
+          handleSearch();
+        })
+        .catch((error) => {
+          console.error(error);
+          notifications.show({
+            title: 'Error',
+            message: 'Failed to update prescription status',
+            color: 'red',
+            position: 'top-right',
+          });
+          setLoading(false);
+        });
+    }
   };
 
   /** Download all the prescriptions from this specific selected form and within this date range */
@@ -163,15 +167,16 @@ export default function PrescriptionsList() {
     tableToCSV(fileName);
   };
 
-  const pagedPrescriptions = useMemo(() => 
-    prescriptions.slice(
-      (pagination.active - 1) * pageSize.current, 
-      pagination.active * pageSize.current
-    ),
+  const pagedPrescriptions = useMemo(
+    () =>
+      prescriptions.slice(
+        (pagination.active - 1) * pageSize.current,
+        pagination.active * pageSize.current
+      ),
     [prescriptions, pagination.active, pageSize.current]
   );
 
-//   console.log(prescriptions);
+  //   console.log(prescriptions);
 
   return (
     <AppLayout title="Prescriptions List">
@@ -218,12 +223,11 @@ export default function PrescriptionsList() {
         </Button>
       </Flex>
 
-
-    <If  show={prescriptions.length > 0}>
-      <Button variant='transparent' onClick={downloadPrescriptions} loading={loading}>
-        Download Data
-      </Button>
-    </If>
+      <If show={prescriptions.length > 0}>
+        <Button variant="transparent" onClick={downloadPrescriptions} loading={loading}>
+          Download Data
+        </Button>
+      </If>
 
       <Box py="lg">
         <Table>
@@ -254,12 +258,12 @@ export default function PrescriptionsList() {
                   colSpan={1}
                 >{`${prescription.patient.givenName} ${prescription.patient.surname}`}</Table.Td>
                 <Table.Td colSpan={1}>
-                  {safeJSONParse<Prescription['items']>(prescription.items, [])
-                    .map((item) => (
-                      <div key={item.id}>
-                        {item.name} {item.dose}{item.doseUnits} ({item.frequency} {item.duration} {item.durationUnits})
-                      </div>
-                    ))}
+                  {safeJSONParse<Prescription['items']>(prescription.items, []).map((item) => (
+                    <div key={item.id}>
+                      {item.name} {item.dose}
+                      {item.doseUnits} ({item.frequency} {item.duration} {item.durationUnits})
+                    </div>
+                  ))}
                 </Table.Td>
                 <Table.Td colSpan={1}>{prescription.provider.name}</Table.Td>
                 <Table.Td colSpan={1}>{prescription.pickupClinic.name}</Table.Td>
@@ -280,7 +284,12 @@ export default function PrescriptionsList() {
           </Table.Tbody>
         </Table>
 
-        <Pagination total={Math.ceil(prescriptions.length / pageSize.current)} value={pagination.active} onChange={pagination.setPage} mt="sm" />
+        <Pagination
+          total={Math.ceil(prescriptions.length / pageSize.current)}
+          value={pagination.active}
+          onChange={pagination.setPage}
+          mt="sm"
+        />
       </Box>
     </AppLayout>
   );

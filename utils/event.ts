@@ -1,4 +1,5 @@
 import { EventResponse, MultipleEventRows } from '../types/Event';
+import { ICD11Diagnosis, Medication } from '../types/misc';
 import { ignorePatientRowFields } from './patient';
 
 const allIgnoredPatientFields = [...ignorePatientRowFields, 'created_at', 'updated_at'];
@@ -16,14 +17,14 @@ export function formatEventsIntoRows(
 ): MultipleEventRows {
   const columns = new Set<string>();
   // intermediate obj to track column names and their ids
-  const addAttrsMapping: Record<string, string> = {};
+  const addAttrsMapping: Record<string, string | number | boolean | Date | ICD11Diagnosis[] | Medication[]> = {};
   let values = []; // { columnName: columnValue }[]
 
   for (let ix = 0; ix < events.length; ix++) {
     const event = events[ix];
     console.log({ event });
     const patient = event.patient;
-    const res: Record<string, any> = {
+    const res: Record<string, string | number | boolean | Date | ICD11Diagnosis[] | Medication[]> = {
       created_at: event.createdAt || '',
       updated_at: event.updatedAt || '',
 

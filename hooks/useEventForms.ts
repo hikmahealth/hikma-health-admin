@@ -1,8 +1,6 @@
-import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
-import { HHForm } from '../types/Inputs';
 import { getAllForms } from '../pages/app/forms-list';
-
+import { HHForm } from '../types/Inputs';
 
 /**
  * Hook that fetches all event forms from the database
@@ -21,7 +19,7 @@ export function useEventForms(): {
     const token = localStorage.getItem('token');
     if (token) {
       getAllForms(token).then((forms) => {
-        setForms(forms as unknown as HHForm[]);
+        setForms(forms);
         setIsLoading(false);
       });
     }
@@ -31,7 +29,7 @@ export function useEventForms(): {
     const token = localStorage.getItem('token');
     if (token) {
       return getAllForms(token).then((forms) => {
-        setForms(forms as unknown as HHForm[]);
+        setForms(forms);
         setIsLoading(false);
       });
     }

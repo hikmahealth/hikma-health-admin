@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
 import {
-  TextInput,
-  PasswordInput,
+  Button,
   Checkbox,
-  Anchor,
-  Paper,
-  Title,
-  Text,
   Container,
   Group,
-  Button,
+  Paper,
+  PasswordInput,
+  TextInput,
+  Title,
 } from '@mantine/core';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { useAuthStatus } from '../hooks/useUser';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;

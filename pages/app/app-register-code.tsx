@@ -1,8 +1,7 @@
-import ReactDOM from 'react-dom';
-import { QRCodeSVG } from 'qrcode.react';
-import AppLayout from '../../components/Layout';
-import { useState } from 'react';
 import { Box, Title } from '@mantine/core';
+import { QRCodeSVG } from 'qrcode.react';
+import { useState } from 'react';
+import AppLayout from '../../components/Layout';
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
 // TODO: Add support for cycling through the registerd QR codes, and invalidating them over time.

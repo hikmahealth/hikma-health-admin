@@ -1,30 +1,29 @@
-import React, { useState, useReducer, useEffect, useMemo, useRef } from 'react';
 import {
-  Menu,
-  Button,
-  TextInput,
-  NumberInput,
-  Textarea,
-  Select,
   Box,
-  Modal,
-  Title,
-  Loader,
-  Text,
+  Button,
   Flex,
+  Loader,
+  Modal,
+  NumberInput,
+  Select,
   Stack,
+  Text,
+  Textarea,
+  TextInput,
+  Title,
 } from '@mantine/core';
 import { DatePickerInput, DateTimePicker } from '@mantine/dates';
-import { v1 as uuidV1 } from 'uuid';
-import axios from 'axios';
-import AppLayout from '../../../components/Layout';
-import { usePatientRegistrationForm } from '../../../hooks/usePatientRegistrationForm';
 import { useForm } from '@mantine/form';
-import { getTranslation, RegistrationFormField } from './registration-form';
 import { useDisclosure } from '@mantine/hooks';
-import { useClinicsList } from '../../../hooks/useClinicsList';
-import If from '../../../components/If';
 import { IconCalendar, IconCircleCheck, IconUserPlus } from '@tabler/icons-react';
+import axios from 'axios';
+import { useEffect, useRef, useState } from 'react';
+import { v1 as uuidV1 } from 'uuid';
+import If from '../../../components/If';
+import AppLayout from '../../../components/Layout';
+import { useClinicsList } from '../../../hooks/useClinicsList';
+import { usePatientRegistrationForm } from '../../../hooks/usePatientRegistrationForm';
+import { getTranslation, RegistrationFormField } from './registration-form';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
@@ -79,7 +78,10 @@ export default function RegisterPatient() {
   // => if create appointment, open modal to select clinic, date/time, duration, reason, and notes
   // => create appointment, reset form
   const [registrationState, setRegistrationState] = useState<
-    'register-patient' | 'registration-complete' | 'creating-appointment' | 'creating-appointment-complete'
+    | 'register-patient'
+    | 'registration-complete'
+    | 'creating-appointment'
+    | 'creating-appointment-complete'
   >('register-patient');
 
   // if the registration state is ever set to 'register-patient', reset the form and patientId then close the modal
@@ -110,15 +112,12 @@ export default function RegisterPatient() {
   useEffect(() => {
     if (isLoadingForm === false && patientRegistrationForm !== null) {
       // get the registration form and data types, then set the default
-      const defaultValues = patientRegistrationForm.fields.reduce(
-        (prev, curr) => {
-          const key = curr.column;
-          const defaultValue = getDefaultFormValue(curr.fieldType);
-          prev[key] = defaultValue;
-          return prev;
-        },
-        {} as Record<string, any>
-      );
+      const defaultValues = patientRegistrationForm.fields.reduce((prev, curr) => {
+        const key = curr.column;
+        const defaultValue = getDefaultFormValue(curr.fieldType);
+        prev[key] = defaultValue;
+        return prev;
+      }, {} as Record<string, any>);
 
       form.setInitialValues(defaultValues);
     }
@@ -211,20 +210,27 @@ export default function RegisterPatient() {
           <Flex justify="center" align="center" direction="column" gap="lg">
             <IconCircleCheck color="green" size={100} />
             <Title order={2}>Patient Registered</Title>
-            <Text size="sm">
-              What would you like to do next?
-            </Text>
+            <Text size="sm">What would you like to do next?</Text>
           </Flex>
           <Stack my="lg" gap="lg">
-            <Button leftSection={<IconCalendar size={16} />} onClick={() => setRegistrationState('creating-appointment')} variant="outline" fullWidth>
+            <Button
+              leftSection={<IconCalendar size={16} />}
+              onClick={() => setRegistrationState('creating-appointment')}
+              variant="outline"
+              fullWidth
+            >
               Create appointment
             </Button>
-            <Button leftSection={<IconUserPlus size={16} />} onClick={() => setRegistrationState('register-patient')} variant="outline" fullWidth>
+            <Button
+              leftSection={<IconUserPlus size={16} />}
+              onClick={() => setRegistrationState('register-patient')}
+              variant="outline"
+              fullWidth
+            >
               Register another patient
             </Button>
           </Stack>
         </If>
-
 
         {/* Creating appointment option chosen */}
         <If show={registrationState === 'creating-appointment'}>
@@ -240,24 +246,29 @@ export default function RegisterPatient() {
           <Flex justify="center" align="center" direction="column" gap="lg">
             <IconCircleCheck color="green" size={100} />
             <Title order={2}>Appointment Created</Title>
-            <Text size="sm">
-              What would you like to do next?
-            </Text>
+            <Text size="sm">What would you like to do next?</Text>
           </Flex>
 
           <Stack my="lg" gap="lg">
-            <Button leftSection={<IconCalendar size={16} />} onClick={() => setRegistrationState('creating-appointment')} variant="outline" fullWidth>
+            <Button
+              leftSection={<IconCalendar size={16} />}
+              onClick={() => setRegistrationState('creating-appointment')}
+              variant="outline"
+              fullWidth
+            >
               Create another appointment
             </Button>
-            <Button leftSection={<IconUserPlus size={16} />} onClick={() => setRegistrationState('register-patient')} variant="outline" fullWidth>
+            <Button
+              leftSection={<IconUserPlus size={16} />}
+              onClick={() => setRegistrationState('register-patient')}
+              variant="outline"
+              fullWidth
+            >
               Register another patient
             </Button>
           </Stack>
         </If>
-
       </Modal>
-
-
 
       <form onSubmit={form.onSubmit(createPatient)} ref={formRef}>
         <Box style={{ maxWidth: 500 }} className="space-y-4">
@@ -428,15 +439,19 @@ function NewAppointmentForm({ visitId, patientId, onAppointmentCreated }: NewApp
     console.log({ token });
 
     try {
-      const response = await axios.post(`${HIKMA_API}/v1/admin/appointments`, {
-        ...values,
-        duration,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: String(token),
+      const response = await axios.post(
+        `${HIKMA_API}/v1/admin/appointments`,
+        {
+          ...values,
+          duration,
         },
-      });
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: String(token),
+          },
+        }
+      );
 
       console.log({ response });
 

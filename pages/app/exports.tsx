@@ -1,20 +1,19 @@
-import { Text, Button, Paper, SimpleGrid, Select, Table, FileInput } from '@mantine/core';
-import React, { useEffect, useMemo, useState } from 'react';
-import { endOfDay, format, isValid, startOfDay, subDays } from 'date-fns';
-import AppLayout from '../../components/Layout';
-import { Patient } from '../../types/Patient';
-import { getAllPatients, getPatientColumns } from './patients/list';
-import { Event, EventResponse, MultipleEventRows } from '../../types/Event';
-import { getAllForms } from './forms-list';
-import { HHForm } from '../../types/Inputs';
+import { Button, Select, SimpleGrid, Table } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
+import { endOfDay, format, isValid, startOfDay, subDays } from 'date-fns';
+import { upperFirst } from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
 import { useImmer } from 'use-immer';
 import If from '../../components/If';
-import { differenceBy, replace, upperFirst } from 'lodash';
-import { formatEventsIntoRows } from '../../utils/event';
+import AppLayout from '../../components/Layout';
 import { usePatientRegistrationForm } from '../../hooks/usePatientRegistrationForm';
-import { getTranslation } from './patients/registration-form';
+import { Event, EventResponse, MultipleEventRows } from '../../types/Event';
+import { HHForm } from '../../types/Inputs';
+import { formatEventsIntoRows } from '../../utils/event';
 import { orderedList } from '../../utils/misc';
+import { getAllForms } from './forms-list';
+import { getPatientColumns } from './patients/list';
+import { getTranslation } from './patients/registration-form';
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
 export default function ExportsPage() {
@@ -68,7 +67,9 @@ export default function ExportsPage() {
     try {
       const token = localStorage.getItem('token') || '';
       // let params = `id=${id}&start_date=${format(startDate || new Date(), "yyyy-MM-dd")}&end_date=${format(endDate || new Date(), "yyyy-MM-dd")}`;
-      let params = `id=${id}&start_date=${(startDate || new Date()).toISOString()}&end_date=${(endDate || new Date()).toISOString()}`;
+      let params = `id=${id}&start_date=${(startDate || new Date()).toISOString()}&end_date=${(
+        endDate || new Date()
+      ).toISOString()}`;
       setLoadingEvents(true);
 
       const response = await fetch(`${HIKMA_API}/admin_api/get_event_form_data?${params}`, {
@@ -165,17 +166,14 @@ export default function ExportsPage() {
   }, [patientRegistrationForm]);
 
   /* mapping of columns to their current label */
-  const registrationColToField: Record<string, any> = useMemo(() => {
+  const registrationColToField: Record<string, string> = useMemo(() => {
     if (patientRegistrationForm === null) return {};
     const { fields } = patientRegistrationForm;
-    return fields.reduce(
-      (prev, curr) => {
-        const key = curr.column;
-        prev[key] = getTranslation(curr.label, 'en') || curr.column || '';
-        return prev;
-      },
-      {} as Record<string, any>
-    );
+    return fields.reduce((prev, curr) => {
+      const key = curr.column;
+      prev[key] = getTranslation(curr.label, 'en') || curr.column || '';
+      return prev;
+    }, {} as Record<string, string>);
   }, [patientRegistrationForm]);
 
   const { columnIds, eventRows }: { columnIds: string[]; eventRows: MultipleEventRows['values'] } =

@@ -1,5 +1,4 @@
-import React from 'react';
-import { IconSettings, IconEdit, IconPlus } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 
 type FABProps = {
   onClick: () => void;
