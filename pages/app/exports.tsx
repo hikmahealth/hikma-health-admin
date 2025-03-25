@@ -14,6 +14,8 @@ import { orderedList } from '../../utils/misc';
 import { getAllForms } from './forms-list';
 import { getPatientColumns } from './patients/list';
 import { getTranslation } from './patients/registration-form';
+import * as XLSX from 'xlsx';
+
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
 export default function ExportsPage() {
@@ -193,7 +195,40 @@ export default function ExportsPage() {
     const eventName = getFormName(id, forms || []);
     const fileName = `${startDate}-${endDate}-${eventName}`;
 
-    tableToCSV(fileName);
+    const table_elt = document.getElementById("form-data-table");
+
+    // Extract Data (create a workbook object from the table)
+    const workbook = XLSX.utils.table_to_book(table_elt);
+
+
+    // Get the workbook as a binary string
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
+
+    // Convert binary string to Blob
+    function s2ab(s: string) {
+      const buf = new ArrayBuffer(s.length);
+      const view = new Uint8Array(buf);
+      for (let i = 0; i < s.length; i++) {
+        view[i] = s.charCodeAt(i) & 0xFF;
+      }
+      return buf;
+    }
+
+    // Create a Blob from the buffer
+    const blob = new Blob([s2ab(excelBuffer)], { type: 'application/octet-stream' });
+
+    // Create a download link and trigger it
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    // TOMBSTONE: March 25, 2025 - replaced our built in function with the above function from XLSX
+    // tableToCSV(fileName);
   };
 
   const [columnNames, columnNameIds] = useMemo(() => {
@@ -315,11 +350,11 @@ export default function ExportsPage() {
           sm: 1,
         }}
         spacing="lg"
-        // breakpoints={[
-        // { maxWidth: '62rem', cols: 3, spacing: 'md' },
-        // { maxWidth: '48rem', cols: 2, spacing: 'sm' },
-        // { maxWidth: '36rem', cols: 1, spacing: 'sm' },
-        // ]}
+      // breakpoints={[
+      // { maxWidth: '62rem', cols: 3, spacing: 'md' },
+      // { maxWidth: '48rem', cols: 2, spacing: 'sm' },
+      // { maxWidth: '36rem', cols: 1, spacing: 'sm' },
+      // ]}
       >
         {/*{forms.map((form) => (
           <Paper shadow="xs" key={form.id} p="md">
@@ -395,7 +430,7 @@ export default function ExportsPage() {
         </Button>
 
         <div style={{ overflowX: 'scroll' }}>
-          <Table withRowBorders striped horizontalSpacing={'sm'}>
+          <Table id="form-data-table" withRowBorders striped horizontalSpacing={'sm'}>
             <Table.Thead>
               <Table.Tr>
                 {columnNames.map((name) => {
