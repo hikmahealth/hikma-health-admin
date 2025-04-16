@@ -410,7 +410,7 @@ type FilterRule = {
 };
 
 type ExplorerFilters = {
-  rules: Record;
+  rules: Record<ExplorerModule, FilterRule[]>;
 };
 
 type PatientFilter = {
@@ -447,7 +447,7 @@ export default function DataExplorer() {
   const { forms: eventForms, isLoading: isLoadingForms, refetch: refetchForms } = useEventForms();
   const [filters, setFilters] = useState<ExplorerFilters>({
     rules: {
-      patient: [],
+      patient: [] as FilterRule[],
       event: [],
       appointment: [],
       prescription: [],
@@ -929,7 +929,7 @@ const getOptions = (xAxisData: string[], yAxisData: number[]) => ({
   },
 });
 
-const getSlicedOptions = (data: Record) => {
+const getSlicedOptions = (data: Record<string, number>) => {
   const xAxisData = Object.keys(data);
   const yAxisData = Object.values(data);
   const options = getOptions(xAxisData, yAxisData);
@@ -1009,8 +1009,8 @@ const eg = [
  * const result2 = groupAndCount(patients, '6e000dc0-130b-11ef-9002-27cca56014c1');
  * // Returns: { white: 22, brown: 99, green: 2 }
  */
-const groupAndCount = (collection: any[], key: string): Record => {
-  return collection.reduce((acc: Record, item: any) => {
+const groupAndCount = (collection: any[], key: string): Record<string, number> => {
+  return collection.reduce((acc: Record<string, number>, item: any) => {
     let value: string | null = null;
 
     // Check if the key exists at the root level

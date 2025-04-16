@@ -36,7 +36,7 @@ type PatientAttributeRow = {
   string_value: string | null;
   date_value: Date | null;
   boolean_value: boolean | null;
-  metadata: Record;
+  metadata: Record<string, any>;
 };
 
 /**
@@ -117,7 +117,7 @@ export default function RegisterPatient() {
         const defaultValue = getDefaultFormValue(curr.fieldType);
         prev[key] = defaultValue;
         return prev;
-      }, {} as Record);
+      }, {} as Record<string, any>);
 
       form.setInitialValues(defaultValues);
     }
@@ -346,7 +346,7 @@ export type Appointment = {
   reason: string;
   notes: string;
   status: AppointmentStatus;
-  metadata: Record;
+  metadata: Record<string, any>;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;

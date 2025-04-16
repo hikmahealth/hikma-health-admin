@@ -141,7 +141,7 @@ type FormFieldId = string;
 
 type KPIFields = {
   patient_fields: string[]; // field ids
-  event_fields: Record; // form id -> field ids
+  event_fields: Record<FormId, FormFieldId[]>; // form id -> field ids
 };
 
 type KPIRequest = {
@@ -151,8 +151,8 @@ type KPIRequest = {
 };
 
 type KPIResponse = {
-  patient_field_counts: Record; // { field id -> { field value -> count } }
-  event_field_counts: Record; // form id -> { field id -> { field value -> count } }
+  patient_field_counts: Record<FormFieldId, Record<string, number>>; // { field id -> { field value -> count } }
+  event_field_counts: Record<FormId, Record<FormFieldId, Record<string, number>>>; // form id -> { field id -> { field value -> count } }
 };
 
 function OrganizationalKPIS() {

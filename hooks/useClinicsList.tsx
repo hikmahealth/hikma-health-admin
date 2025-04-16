@@ -37,7 +37,7 @@ export function useClinicsList(): { clinics: Clinic[]; loading: boolean; refresh
   return { clinics, loading, refresh: fetchAndSetClinics };
 }
 
-const getClinics = async (token: string): Promise => {
+const getClinics = async (token: string): Promise<Clinic[]> => {
   const response = await fetch(`${HIKMA_API}/v1/admin/clinics`, {
     method: 'GET',
     headers: {

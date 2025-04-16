@@ -10,7 +10,7 @@ import { userRoles } from './new-user';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
-const changePassword = async (email: string, password: string, token: string): Promise => {
+const changePassword = async (email: string, password: string, token: string): Promise<any> => {
   const response = await fetch(`${HIKMA_API}/admin_api/change_password`, {
     method: 'POST',
     headers: {
@@ -39,7 +39,7 @@ export default function EditUser() {
     console.log({ user });
   }, []);
 
-  const updateField = (e: React.ChangeEvent) => {
+  const updateField = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUser({
       ...user,
       [e.target.name]: e.target.value,

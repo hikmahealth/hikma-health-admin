@@ -16,7 +16,7 @@ import { Prescription, PrescriptionStatus, statusValues } from '../../../types/P
 import { camelCaseKeys, safeJSONParse, tryParseDate } from '../../../utils/misc';
 import { tableToCSV } from '../exports';
 
-const getPrescriptions = async (token: string, filters: SearhFilters): Promise => {
+const getPrescriptions = async (token: string, filters: SearhFilters): Promise<Prescription[]> => {
   try {
     const response = await axios.get(`${HIKMA_API}/v1/admin/prescriptions/search`, {
       params: filters,
@@ -43,7 +43,7 @@ const updatePrescriptionStatus = async (
   token: string,
   prescriptionId: string,
   status: PrescriptionStatus
-): Promise => {
+): Promise<void> => {
   try {
     await axios.put(
       `${HIKMA_API}/v1/admin/prescriptions/${prescriptionId}`,

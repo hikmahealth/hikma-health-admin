@@ -19,7 +19,7 @@ export function useEventForms(): {
     const token = localStorage.getItem('token');
     if (token) {
       getAllForms(token).then((forms) => {
-        setForms(forms as unknown as HHForm[]);
+        setForms(forms);
         setIsLoading(false);
       });
     }
@@ -29,7 +29,7 @@ export function useEventForms(): {
     const token = localStorage.getItem('token');
     if (token) {
       return getAllForms(token).then((forms) => {
-        setForms(forms as unknown as HHForm[]);
+        setForms(forms);
         setIsLoading(false);
       });
     }

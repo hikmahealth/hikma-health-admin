@@ -9,7 +9,7 @@ import { User } from '../../types/User';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
-const getUsers = async (token: string): Promise => {
+const getUsers = async (token: string): Promise<User[]> => {
   const response = await fetch(`${HIKMA_API}/admin_api/all_users`, {
     method: 'GET',
     headers: {
@@ -27,7 +27,7 @@ const getUsers = async (token: string): Promise => {
   return result.users;
 };
 
-const deleteUser = async (email: string, token: string): Promise => {
+const deleteUser = async (email: string, token: string): Promise<any> => {
   const response = await fetch(`${HIKMA_API}/admin_api/user`, {
     method: 'DELETE',
     headers: {
@@ -55,12 +55,12 @@ export default function UsersList() {
     const token = localStorage.getItem('token');
     if (token) {
       getUsers(token)
-        .then((users) => {
+        .then((users: User[]) => {
           console.log({ users });
           setUsers(users);
           setLoading(false);
         })
-        .catch((err) => console.log(err));
+        .catch((err: any) => console.log(err));
     }
   }, []);
 
@@ -78,13 +78,12 @@ export default function UsersList() {
     const token = localStorage.getItem('token');
     if (token) {
       deleteUser(email, token)
-        .then((res) => {
-          console.log(res);
+        .then((res: any) => {
           // remove user from state
           const newUsers = users.filter((user) => user.email !== email);
           setUsers(newUsers);
         })
-        .catch((err) => console.log(err));
+        .catch((err: any) => console.log(err));
     }
   };
 

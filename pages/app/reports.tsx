@@ -166,9 +166,9 @@ interface ApiResponse {
   patients: Patient[];
 }
 
-function calculateAgeHistogram(data: ApiResponse): Record {
+function calculateAgeHistogram(data: ApiResponse): Record<number, number> {
   const currentDate = new Date();
-  const ageHistogram: Record = {};
+  const ageHistogram: Record<number, number> = {};
 
   data.patients?.forEach((patient) => {
     let age: number | null = null;
@@ -204,7 +204,7 @@ function calculateAgeHistogram(data: ApiResponse): Record {
 }
 
 interface DiagnosesData {
-  diagnoses_counts: Record;
+  diagnoses_counts: Record<string, number>;
   end_date: string | null;
   start_date: string | null;
 }
@@ -259,7 +259,7 @@ function tallyPatientsBySex(data: ApiResponse): SexTally {
 }
 
 interface PrescriptionsResponse {
-  prescriptions_counts: Record;
+  prescriptions_counts: Record<string, number>;
   start_date: string | null;
   end_date: string | null;
 }

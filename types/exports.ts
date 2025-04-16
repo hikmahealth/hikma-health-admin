@@ -1,3 +1,5 @@
+import { ICD11Diagnosis, Medication } from "./misc";
+
 export namespace DataExport {
   type Appointment = {
     clinic_id: string;
@@ -43,7 +45,7 @@ export namespace DataExport {
     is_snapshot_form: boolean;
     language: string;
     last_modified: string;
-    metadata: Record; // Or a more specific type if known
+    metadata: Record<string, any>; // Or a more specific type if known
     name: string;
     server_created_at: string;
     updated_at: string;
@@ -58,7 +60,7 @@ export namespace DataExport {
     id: string;
     is_deleted: boolean;
     last_modified: string;
-    metadata: Record; // Or a more specific type if known
+    metadata: Record<string, any>; // Or a more specific type if known
     patient_id: string;
     server_created_at: string;
     updated_at: string;
@@ -75,7 +77,7 @@ export namespace DataExport {
     id: string;
     is_deleted: boolean;
     last_modified: string;
-    metadata: Record; // Or a more specific type if known
+    metadata: Record<string, any>; // Or a more specific type if known
     number_value: number | null;
     patient_id: string;
     server_created_at: string;
@@ -118,7 +120,7 @@ export namespace DataExport {
     id: string;
     is_deleted: boolean;
     last_modified: string;
-    metadata: Record;
+    metadata: Record<string, any>;
     name: string;
     server_created_at: string;
     updated_at: string;
@@ -166,7 +168,7 @@ export namespace DataExport {
     id: string;
     is_deleted: boolean;
     last_modified: string;
-    metadata: Record; // Or a more specific type if known
+    metadata: Record<string, any>; // Or a more specific type if known
     patient_id: string;
     provider_id: string;
     provider_name: string;
@@ -175,7 +177,7 @@ export namespace DataExport {
   };
 
   type Patient = {
-    additional_data: Record;
+    additional_data: Record<string, string | number | boolean | Date | ICD11Diagnosis[] | Medication[]>;
     camp: string;
     citizenship: string;
     created_at: string;
@@ -189,7 +191,7 @@ export namespace DataExport {
     image_timestamp: string | null;
     is_deleted: boolean;
     last_modified: string;
-    metadata: Record;
+    metadata: Record<string, any>;
     phone: string;
     photo_url: string | null;
     server_created_at: string;

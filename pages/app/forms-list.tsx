@@ -19,7 +19,7 @@ Fetches all the forms froms from the database
 @param {string} token to authenticate the sender
 @returns {Promise<HHForm[]>}
 */
-export const getAllForms = async (token: string): Promise => {
+export const getAllForms = async (token: string): Promise<HHForm[]> => {
   const response = await fetch(`${HIKMA_API}/admin_api/get_event_forms`, {
     method: 'GET',
     headers: {
@@ -36,7 +36,7 @@ export const getAllForms = async (token: string): Promise => {
   return result.event_forms;
 };
 
-const deleteForm = async (id: string, token: string): Promise => {
+const deleteForm = async (id: string, token: string): Promise<void> => {
   const response = await fetch(`${HIKMA_API}/admin_api/delete_event_form`, {
     method: 'DELETE',
     headers: {

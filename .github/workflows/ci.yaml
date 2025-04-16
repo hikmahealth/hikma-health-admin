@@ -20,17 +20,35 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 'lts/*' # Use the latest LTS version of Node.js
-          cache: 'npm'
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install
 
       - name: Run unit tests
-        run: npm test
+        run: pnpm test
 
       # TODO: Add test for build
       # TODO: Add lint tests
-      # TODO: Add audits with npm audit (maybe using synk?)
+      # TODO: Add audits with pnpm audit (maybe using synk?)
       # TODO: Add a check for code coverage to ensure coverage meets a minimum threshold
 
       # TODO: Add end-to-end tests with playwright

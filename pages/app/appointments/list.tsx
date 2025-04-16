@@ -12,7 +12,7 @@ import { upperFirst } from 'lodash';
 import { useClinicsList } from '../../../hooks/useClinicsList';
 import { camelCaseKeys } from '../../../utils/misc';
 
-const getAppointments = async (token: string, filters: SearhFilters): Promise => {
+const getAppointments = async (token: string, filters: SearhFilters): Promise<Appointment[]> => {
   try {
     const response = await axios.get(`${HIKMA_API}/v1/admin/appointments/search`, {
       params: filters,
@@ -39,7 +39,7 @@ const updateAppointmentStatus = async (
   token: string,
   appointmentId: string,
   status: AppointmentStatus
-): Promise => {
+): Promise<void> => {
   try {
     await axios.put(
       `${HIKMA_API}/v1/admin/appointments/${appointmentId}`,
@@ -72,7 +72,7 @@ export type Appointment = {
   reason: string;
   notes: string;
   status: AppointmentStatus;
-  metadata: Record;
+  metadata: Record<string, any>;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
