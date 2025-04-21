@@ -19,6 +19,7 @@ import {
   IconForms,
   IconGauge,
   IconHaze,
+  IconHomeCog,
   IconMedicineSyrup,
   IconNotes,
   IconUsers,
@@ -77,9 +78,9 @@ const navLinks = [
   // { label: 'HERS', icon: IconHaze, link: '/app/hers' },
   { label: 'Activate App', icon: IconHaze, link: '/app/app-register-code' },
   // { label: 'Reports (Beta)', icon: IconFileReport, link: '/app/reports' },
-  // { label: 'Settings', icon: IconAdjustments, link: '/app/settings' },
   { label: 'Raw Data / Export Events', icon: IconAdjustments, link: '/app/exports' },
   { label: 'Data Explorer', icon: IconChartInfographic, link: '/app/data-explorer' },
+  { label: 'Settings', icon: IconHomeCog, link: '/app/settings' },
 ];
 
 const useStyles = createStyles((theme, _, u) => ({

@@ -3,7 +3,6 @@ import {
   Button,
   Checkbox,
   Divider,
-  FileInput,
   Flex,
   Grid,
   Group,
@@ -36,8 +35,6 @@ import { InputSettingsList } from '../../components/FormBuilder/InputSettingsLis
 import { MedicineInput } from '../../components/FormBuilder/MedicineInput';
 import AppLayout from '../../components/Layout';
 import { languageOptions } from '../../data/languages';
-import { fieldFile } from '../../forms/fields';
-import { createComponent } from '../../forms/utils';
 
 import {
   BinaryField,
@@ -243,21 +240,21 @@ export const inputIconsMap = {
 };
 
 const ComponentRegistry = [
-  createComponent(fieldFile(), {
-    label: 'File',
-    icon: <IconCalendar />,
-    render: function ({ field }) {
-      return (
-        <FileInput
-          accept={field.allowedMimeTypes ? field.allowedMimeTypes.join(',') : undefined}
-          multiple={field.multiple}
-          label={field.name}
-          required={field.required}
-          description={field.description}
-        />
-      );
-    },
-  }),
+  // createComponent(fieldFile(), {
+  //   label: 'File',
+  //   icon: <IconCalendar />,
+  //   render: function ({ field }) {
+  //     return (
+  //       <FileInput
+  //         accept={field.allowedMimeTypes ? field.allowedMimeTypes.join(',') : undefined}
+  //         multiple={field.multiple}
+  //         label={field.name}
+  //         required={field.required}
+  //         description={field.description}
+  //       />
+  //     );
+  //   },
+  // }),
 ];
 
 const inputAddButtons = (action: AddButtonProps) => [
