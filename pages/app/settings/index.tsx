@@ -143,7 +143,7 @@ const useSessionToken = function () {
 };
 
 function SettingStoreOption({ selected }: { selected: Array<{ key: string; value: any }> }) {
-  const [conf, setConf] = React.useState<string | null>(null);
+  const [conf, setConf] = React.useState<string | undefined>(undefined);
   const [loading, setLoading] = React.useState(false);
   const token = useSessionToken();
 
@@ -151,6 +151,11 @@ function SettingStoreOption({ selected }: { selected: Array<{ key: string; value
   // performs a config check before commiting to DB.
   const onSaveConfiguration = React.useCallback(() => {
     setLoading(true);
+    if (!token) {
+      console.warn('skipped! token empty!');
+      return;
+    }
+
     fetch(hikma().path('/v1/admin/configurations'), {
       method: 'POST',
       headers: {
