@@ -1,5 +1,5 @@
-import { Button } from '@mantine/core';
-import { IconBox, IconLoader } from '@tabler/icons-react';
+import { Button, TextInput, Textarea } from '@mantine/core';
+import { IconBox, IconLoader, IconStarFilled } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { hikma } from '../../../client/api';
@@ -91,10 +91,15 @@ function ConfiguredOption({ value }: { value: ReturnType<typeof useStorageHeadQu
     <div>
       <div className="py-3">
         {value.data.is_configured ? (
-          <div className="flex flex-row items-center justify-between gap-3">
-            <p>Configured storage for</p>
-            <b className="uppercase">{value.data.store}</b>
-          </div>
+          <>
+            <div className="flex flex-row items-center gap-3">
+              <p>Configured storage for</p>
+              <b className="uppercase underline">{value.data.store}</b>
+            </div>
+            <div className="my-2">
+              <SimpleConfigurationValues store={value.data.store} />
+            </div>
+          </>
         ) : (
           <p className="italic text-gray-600">Storage hasn't been configured</p>
         )}
@@ -103,33 +108,290 @@ function ConfiguredOption({ value }: { value: ReturnType<typeof useStorageHeadQu
   );
 }
 
+function SimpleConfigurationValues({ store }: { store: string }) {
+  const [value, setValue] = React.useState<Array<{ key: string; value: string }> | undefined>();
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const token = useSessionToken();
+
+  React.useEffect(() => {
+    if (!token) {
+      console.warn('update details');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    fetch(hikma().path(`/v1/admin/configurations/storage/${store}`), {
+      method: 'GET',
+      headers: {
+        Authorization: token,
+      },
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw new Error('Failed');
+        }
+      })
+      .then(setValue)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, [token]);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (loading) {
+    return <div className="font-mono text-sm">Loading the values</div>;
+  }
+
+  if (!value) {
+    return <div>nothing to show</div>;
+  }
+
+  return (
+    <div className="font-mono text-xs text-gray-300 border border-dashed border-gray-500 px-3 py-2 rounded-lg">
+      {value.map((v) => `${v.key}=${v.value}`).join(', ')}
+    </div>
+  );
+}
+
 const StoreOptions = [
+  {
+    id: 's3-tigrisdata',
+    recommended: true,
+    name: <>S3 - Tigrisdata </>,
+    variables: { HH_STORE_TYPE: 's3', S3_COMPATIBLE_STORAGE_HOST: 'tigrisdata' },
+    component: function (props: {
+      variables?: Record<string, string> | undefined;
+      saveConfigurationAsText: (text: string) => void;
+      loading: boolean;
+    }) {
+      const [record, setRecord] = React.useState<Partial<Record<'name', string>>>({});
+      const [text, setText] = React.useState<string | undefined>();
+
+      const onSaveConfiguration = React.useCallback(() => {
+        const p = { ...(props.variables ?? {}) };
+        if (record.name) {
+          p['S3_BUCKET_NAME'] = record.name;
+        }
+
+        let servertext = '';
+        servertext += text;
+        servertext += '\n';
+
+        for (let [k, v] of Object.entries(p)) {
+          servertext += `${k}=${v}\n`;
+        }
+
+        props.saveConfigurationAsText(servertext);
+      }, [record, text, props.variables, props.saveConfigurationAsText]);
+
+      return (
+        <form className="w-full" onSubmit={onSaveConfiguration}>
+          <TextInput
+            label="Name of the bucket in Tigridata console"
+            required
+            value={record['name']}
+            onChange={(e) => {
+              setRecord((d) => {
+                d['name'] = e.target.value;
+                return d;
+              });
+            }}
+          />
+          <div>
+            <h3 className="py-2 text-sm font-medium">Include configuration</h3>
+            <Textarea
+              resize="vertical"
+              placeholder="or paste values here"
+              style={{
+                fontFamily: 'monospace',
+              }}
+              className="w-full font-mono text-sm rounded"
+              rows={8}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+          </div>
+          <div className="bg-gray-800/40 rounded-lg py-2 flex flex-row items-center justify-end gap-4 px-4 bg-blend-multiply">
+            <p className="text-sm -pt-2 text-gray-600">
+              *Paste the variables here to configure the storage*
+            </p>
+            <Button variant="filled" type="submit">
+              {props.loading ? (
+                <IconLoader className="animate-spin" />
+              ) : (
+                <>Confirm Configurations</>
+              )}
+            </Button>
+          </div>
+        </form>
+      );
+    },
+  },
   {
     id: 's3-native',
     name: 'S3 - AWS Cloud Storage',
     // these variables will be prefilled when making the request
     variables: { HH_STORE_TYPE: 's3', S3_COMPATIBLE_STORAGE_HOST: 'native' },
-  },
-  {
-    id: 's3-tigrisdata',
-    name: 'Tigris - S3 Compatible Storage',
-    variables: { HH_STORE_TYPE: 's3', S3_COMPATIBLE_STORAGE_HOST: 'tigrisdata' },
+    component: function (props: {
+      variables?: Record<string, string> | undefined;
+      saveConfigurationAsText: (text: string) => void;
+      loading: boolean;
+    }) {
+      const [record, setRecord] = React.useState<Partial<Record<'name', string>>>({});
+      const [text, setText] = React.useState<string | undefined>();
+
+      const onSaveConfiguration = React.useCallback(() => {
+        const p = { ...(props.variables ?? {}) };
+        if (record.name) {
+          p['S3_BUCKET_NAME'] = record.name;
+        }
+
+        let servertext = '';
+        servertext += text;
+        servertext += '\n';
+
+        for (let [k, v] of Object.entries(p)) {
+          servertext += `${k}=${v}\n`;
+        }
+
+        props.saveConfigurationAsText(servertext);
+      }, [record, text, props.variables, props.saveConfigurationAsText]);
+      return (
+        <form onSubmit={onSaveConfiguration}>
+          <TextInput
+            label="Name of the bucket"
+            placeholder="(Optional)"
+            value={record['name']}
+            onChange={(e) => {
+              setRecord((d) => {
+                d['name'] = e.target.value;
+                return d;
+              });
+            }}
+          />
+          <div>
+            <h3 className="py-2 text-sm font-medium">Include configuration</h3>
+            <Textarea
+              resize="vertical"
+              className="w-full font-mono text-sm rounded"
+              placeholder="or paste values here"
+              rows={8}
+              value={text}
+              style={{
+                fontFamily: 'monospace',
+              }}
+              onChange={(e) => setText(e.target.value)}
+            />
+          </div>
+          <div className="bg-gray-800/40 rounded-lg py-2 flex flex-row items-center justify-end gap-4 px-4 bg-blend-multiply">
+            <p className="text-sm -pt-2 text-gray-600">
+              *Paste the variables here to configure the storage*
+            </p>
+            <Button variant="filled" type="submit">
+              {props.loading ? (
+                <IconLoader className="animate-spin" />
+              ) : (
+                <>Confirm Configurations</>
+              )}
+            </Button>
+          </div>
+        </form>
+      );
+    },
   },
   {
     id: 'gcp-native',
     name: 'GCP - Cloud Storage',
     variables: { HH_STORE_TYPE: 'gcp' },
+    component: function (props: {
+      loading: boolean;
+      variables?: Record<string, any> | undefined;
+      saveConfigurationAsJson: (
+        values: Array<{ key: string } & ({ value: string } | { json: string })>
+      ) => void;
+    }) {
+      const [record, setRecord] = React.useState<Partial<Record<'name' | 'json', string>>>({});
+      const onSaveConfiguration = React.useCallback(() => {
+        const values = [];
+        if (props.variables) {
+          for (let [k, v] of Object.entries(props.variables)) {
+            values.push({
+              key: k,
+              value: v,
+            });
+          }
+        }
+
+        if (record.name) {
+          values.push({
+            key: 'GCP_BUCKET_NAME',
+            value: record.name,
+          });
+        }
+
+        if (record.json) {
+          values.push({
+            key: 'GCP_SERVICE_ACCOUNT',
+            json: JSON.parse(record.json.trim()),
+          });
+        }
+
+        props.saveConfigurationAsJson(values);
+      }, [record, props.variables, props.saveConfigurationAsJson]);
+
+      return (
+        <form onSubmit={onSaveConfiguration} className="w-full">
+          <TextInput
+            label="GCP Cloud Bucket"
+            placeholder="(Optional)"
+            value={record['name']}
+            onChange={(e) => {
+              setRecord((d) => {
+                d['name'] = e.target.value;
+                return d;
+              });
+            }}
+          />
+          <div>
+            <h3 className="py-2 text-sm font-medium">Paste JSON configuration</h3>
+            <Textarea
+              resize="vertical"
+              required
+              className="w-full font-mono text-sm rounded"
+              rows={8}
+              value={record['json']}
+              onChange={(e) =>
+                setRecord((d) => {
+                  d['json'] = e.target.value;
+                  return d;
+                })
+              }
+            />
+          </div>
+          <div className="bg-gray-800/40 rounded-lg py-2 flex flex-row items-center justify-end gap-4 px-4 bg-blend-multiply">
+            <Button variant="filled" type="submit">
+              {props.loading ? (
+                <IconLoader className="animate-spin" />
+              ) : (
+                <>Confirm Configurations</>
+              )}
+            </Button>
+          </div>
+        </form>
+      );
+    },
   },
 ];
 
-const varsToSimpleText = (record: object) => {
-  let text = '';
-  for (let [key, value] of Object.entries(record)) {
-    text += `${key.toUpperCase()}=${value}\n`;
-  }
-
-  return text;
-};
+function classNames(...classes: any[]) {
+  return classes.filter(Boolean).join(' ');
+}
 
 const useSessionToken = function () {
   const router = useRouter();
@@ -142,36 +404,100 @@ const useSessionToken = function () {
   return token;
 };
 
-function SettingStoreOption({ selected }: { selected: Array<{ key: string; value: any }> }) {
-  const [conf, setConf] = React.useState<string | undefined>(undefined);
+function SettingStoreOption({
+  isConfigured,
+  selected,
+  defaultOpen,
+}: {
+  isConfigured: boolean;
+  selected: Array<{ key: string; value: any }>;
+  defaultOpen?: boolean;
+}) {
   const [loading, setLoading] = React.useState(false);
   const token = useSessionToken();
 
-  // TODO: might want to include the code that
-  // performs a config check before commiting to DB.
-  const onSaveConfiguration = React.useCallback(() => {
-    setLoading(true);
-    if (!token) {
-      console.warn('skipped! token empty!');
-      return;
+  const saveConfigurationAsJson = React.useCallback(
+    (conf: Array<Record<'key' | 'json' | 'value', string>>) => {
+      if (!token) {
+        console.warn('skipped! token empty!');
+        return;
+      }
+
+      if (isConfigured) {
+        if (
+          !confirm(
+            'Seems like storage has already been set. Changing may have unintended consequences'
+          )
+        ) {
+          return;
+        }
+      }
+
+      setLoading(true);
+      fetch(hikma().path('/v1/admin/configurations'), {
+        method: 'POST',
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(conf),
+      })
+        .then((res) => {
+          if (!res.ok) {
+            console.error(res.text());
+          }
+        })
+        .then(() => window.location.reload())
+        .finally(() => setLoading(false));
+    },
+    [token, isConfigured]
+  );
+
+  const saveConfigurationAsText = React.useCallback(
+    (conf: string) => {
+      if (!token) {
+        console.warn('skipped! token empty!');
+        return;
+      }
+
+      if (isConfigured) {
+        if (
+          !confirm(
+            'Seems like storage has already been set. Changing may have unintended consequences'
+          )
+        ) {
+          return;
+        }
+      }
+
+      setLoading(true);
+      fetch(hikma().path('/v1/admin/configurations'), {
+        method: 'POST',
+        headers: {
+          Authorization: token,
+          'Content-Type': 'text/plain',
+        },
+        body: conf,
+      })
+        .then((res) => {
+          if (!res.ok) {
+            console.error(res.text());
+          }
+        })
+        .then(() => window.location.reload())
+        .finally(() => setLoading(false));
+    },
+    [token, isConfigured]
+  );
+
+  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
+  const Component = React.useMemo(() => {
+    if (selectedIndex === null) {
+      return null;
     }
 
-    fetch(hikma().path('/v1/admin/configurations'), {
-      method: 'POST',
-      headers: {
-        Authorization: token,
-        'Content-Type': 'text/plain',
-      },
-      body: conf,
-    })
-      .then((res) => {
-        if (!res.ok) {
-          console.error(res.text());
-        }
-      })
-      .then(() => window.location.reload())
-      .finally(() => setLoading(false));
-  }, [conf, token]);
+    return StoreOptions[selectedIndex].component ?? null;
+  }, [selectedIndex]);
 
   return (
     <div className="py-2 border-t border-gray-700">
@@ -182,31 +508,42 @@ function SettingStoreOption({ selected }: { selected: Array<{ key: string; value
             <div
               key={`${ix}`}
               onClick={() => {
-                setConf(varsToSimpleText(d.variables) + '\n# Include other configurations below\n');
+                setSelectedIndex((d) => {
+                  if (d === ix) {
+                    return null;
+                  }
+                  return ix;
+                });
               }}
-              className="flex-1 border border-gray-700 hover:bg-gray-800 transition-colors cursor-pointer rounded-md px-3 py-4"
+              className={classNames(
+                'flex flex-row items-center justify-between',
+                'flex-1 border border-gray-700 hover:bg-gray-800 transition-colors cursor-pointer rounded-lg px-3 py-4',
+                selectedIndex === ix && 'ring-2 ring-gray-400 bg-gray-700/10'
+              )}
             >
               <p>{d.name}</p>
+              {d.recommended && (
+                <span className="text-sm inline-flex flex-row items-center gap-1 italic text-yellow-400">
+                  <IconStarFilled size={15} className="text-yellow-300 size-3" /> Recommended
+                </span>
+              )}
             </div>
           );
         })}
       </div>
-      <div className="space-y-3">
-        <h3 className="py-2">Set Configuration</h3>
-        <textarea
-          className="w-full font-mono py-2 px-3 text-sm rounded"
-          rows={8}
-          value={conf}
-          onChange={(e) => setConf(e.target.value)}
-        />
-      </div>
-      <div className="bg-gray-800/40 rounded-lg py-2 flex flex-row items-center justify-end gap-4 px-4 bg-blend-multiply">
-        <p className="text-sm -pt-2 text-gray-600">
-          *Paste the variables here to configure the storage*
-        </p>
-        <Button onClick={onSaveConfiguration}>
-          {loading ? <IconLoader className="animate-spin" /> : <>Confirm Configurations</>}
-        </Button>
+      <div className="w-full h-96">
+        {Component && (
+          <Component
+            loading={loading}
+            saveConfigurationAsText={saveConfigurationAsText}
+            // @ts-expect-error here be dragons
+            saveConfigurationAsJson={saveConfigurationAsJson}
+            // @ts-expect-error here be dragons
+            variables={
+              selectedIndex !== null ? (StoreOptions[selectedIndex].variables ?? {}) : undefined
+            }
+          />
+        )}
       </div>
     </div>
   );
@@ -231,7 +568,10 @@ export default function GeneralSettingsPage() {
           <main>
             <ConfiguredOption value={q} />
             {q.state === 'success' && (
-              <SettingStoreOption selected={q.data.is_configured ? q.data.keys : []} />
+              <SettingStoreOption
+                isConfigured={q.data.is_configured}
+                selected={q.data.is_configured ? q.data.keys : []}
+              />
             )}
           </main>
         </Settings.Body>
