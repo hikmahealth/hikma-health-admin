@@ -311,7 +311,7 @@ const StoreOptions = [
     variables: { HH_STORE_TYPE: 'gcp' },
     component: function (props: {
       loading: boolean;
-      variables: Record<string, any>;
+      variables?: Record<string, any> | undefined;
       saveConfigurationAsJson: (
         values: Array<{ key: string } & ({ value: string } | { json: string })>
       ) => void;
@@ -536,7 +536,9 @@ function SettingStoreOption({
           <Component
             loading={loading}
             saveConfigurationAsText={saveConfigurationAsText}
+            // @ts-expect-error here be dragons
             saveConfigurationAsJson={saveConfigurationAsJson}
+            // @ts-expect-error here be dragons
             variables={
               selectedIndex !== null ? (StoreOptions[selectedIndex].variables ?? {}) : undefined
             }
