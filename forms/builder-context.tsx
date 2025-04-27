@@ -1,7 +1,7 @@
 // Representing state information expected of the
 // form builder
 import React from 'react';
-import { FieldOption, HHField } from '../types/Inputs';
+import { DoseUnit, FieldOption, HHField } from '../types/Inputs';
 import { BaseFieldDescription } from './utils';
 
 import { produce } from 'immer';
