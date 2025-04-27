@@ -135,6 +135,7 @@ export default function FormsList() {
       query: { formId: form.id },
     });
   };
+
   const confirmDelete = (id: string) => {
     if (window.confirm('Are you sure you want to delete this form?')) {
       const token = localStorage.getItem('token') || '';
@@ -228,8 +229,6 @@ export default function FormsList() {
       </Table.Td>
     </Table.Tr>
   ));
-
-  console.log({ forms });
 
   return (
     <>

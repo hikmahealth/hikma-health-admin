@@ -6,7 +6,7 @@ import React from 'react';
  * Describing the fields the are required when
  * defining the filed
  */
-export type RequiredFieldDescription = {
+export type BaseFieldDescription = {
   id: string;
   fieldType: string;
   inputType: string;
@@ -23,22 +23,26 @@ type Prettify<T> = {
 type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export const withRequiredFields = <R extends Record<string, any> & { id?: string }>() =>
-  function <D extends Optional<Required<R> & Omit<RequiredFieldDescription, keyof R>, 'id'>>(
-    description: D
-  ) {
-    if (!('id' in description) || typeof description['id'] !== 'string') {
-      description['id'] = nanoid() as R['id'] & string;
+  function <D extends Optional<Required<R> & Omit<BaseFieldDescription, keyof R>, 'id'>>(inp: D) {
+    const base = {
+      required: false,
+      name: '',
+      description: '',
+    };
+
+    if (!('id' in inp) || typeof inp['id'] !== 'string') {
+      inp['id'] = nanoid() as R['id'] & string;
     }
 
-    return description as Prettify<{ id: R['id'] & string } & typeof description>;
+    return { ...base, ...inp } as Prettify<{ id: R['id'] & string } & typeof inp>;
   };
 
 export const field = withRequiredFields();
 
 export const createComponent = function <
-  FieldDescription extends ReturnType<typeof field<RequiredFieldDescription>>,
+  FieldDescription extends ReturnType<typeof field<BaseFieldDescription>>,
 >(
-  instance: FieldDescription,
+  field: FieldDescription,
   opts: {
     label: string;
     icon?: React.ReactNode;
@@ -46,17 +50,17 @@ export const createComponent = function <
   }
 ) {
   if (!opts.render) {
-    throw new Error('missing `opts.render` please define or move component');
+    throw new Error('missing `opts.render` please define or remove component');
   }
 
   return {
-    key: instance.fieldType,
+    id: String(Math.random() * 10000 + 1), // NOTE: might remove this
+    field,
     button: {
-      label: opts.label ?? instance.fieldType,
+      label: opts.label ?? field.fieldType,
       // NOTE: might move this default definition out
       icon: opts.icon ?? <IconBox />,
     },
-    instance,
-    ...opts,
+    render: opts.render,
   };
 };
