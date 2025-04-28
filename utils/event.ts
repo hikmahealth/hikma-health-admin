@@ -38,6 +38,7 @@ export function formatEventsIntoRows(
       };
 
     // Object.keys(patient).forEach((x) => !allIgnoredFields.includes(x) && columns.add(x));
+    // HACK: event.formData maybe string, this shouldn't be permanent
     const formdata =
       typeof event.formData === 'string'
         ? (JSON.parse(event.formData) as Array<any>)
