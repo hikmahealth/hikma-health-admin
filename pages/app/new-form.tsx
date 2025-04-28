@@ -15,7 +15,6 @@ import {
 } from '@mantine/core';
 import axios from 'axios';
 import { eq, omit } from 'lodash';
-import { nanoid } from 'nanoid';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { v1 as uuidV1 } from 'uuid';
@@ -25,277 +24,266 @@ import { languageOptions } from '../../data/languages';
 
 import ComponentRegistry from '@/forms/components-registry';
 import { FormBuilderContextProvider, useFormBuilderContext } from '../../forms/builder-context';
-import {
-  BinaryField,
-  DoseUnit,
-  FieldOption,
-  HHField,
-  HHFieldBase,
-  HHFieldWithPosition,
-  InputType,
-  MedicineField,
-  OptionsField,
-  TextField,
-} from '../../types/Inputs';
+import { DoseUnit, FieldOption, HHField, HHFieldWithPosition } from '../../types/Inputs';
 import { deduplicateOptions, safeJSONParse } from '../../utils/misc';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
-function createTextField(name = '', description = '', inputType: InputType = 'text'): TextField {
-  const baseInput: HHFieldBase = {
-    id: nanoid(),
-    name,
-    description,
-    inputType,
-    required: true,
-  };
-  switch (inputType) {
-    case 'textarea':
-      return { ...baseInput, fieldType: 'free-text', inputType, length: 'long' };
-    case 'text':
-    case 'number':
-    case 'email':
-    case 'password':
-    case 'tel':
-    default:
-      return { ...baseInput, fieldType: 'free-text', inputType, length: 'short' };
-  }
-}
+// function createTextField(name = '', description = '', inputType: InputType = 'text'): TextField {
+//   const baseInput: HHFieldBase = {
+//     id: nanoid(),
+//     name,
+//     description,
+//     inputType,
+//     required: true,
+//   };
+//   switch (inputType) {
+//     case 'textarea':
+//       return { ...baseInput, fieldType: 'free-text', inputType, length: 'long' };
+//     case 'text':
+//     case 'number':
+//     case 'email':
+//     case 'password':
+//     case 'tel':
+//     default:
+//       return { ...baseInput, fieldType: 'free-text', inputType, length: 'short' };
+//   }
+// }
 
-function createBinaryField(
-  name = '',
-  description = '',
-  inputType: BinaryField['inputType'] = 'checkbox',
-  options: BinaryField['options'] = []
-): BinaryField {
-  return {
-    id: nanoid(),
-    name,
-    description,
-    inputType,
-    required: true,
-    fieldType: 'binary',
-    options,
-  };
-}
+// function createBinaryField(
+//   name = '',
+//   description = '',
+//   inputType: BinaryField['inputType'] = 'checkbox',
+//   options: BinaryField['options'] = []
+// ): BinaryField {
+//   return {
+//     id: nanoid(),
+//     name,
+//     description,
+//     inputType,
+//     required: true,
+//     fieldType: 'binary',
+//     options,
+//   };
+// }
 
 // TODO: Add createSelectField Method
 // TODO: Add createRadioField Method
 
-function createMedicineField(
-  name = 'Medicine',
-  description = '',
-  inputType: MedicineField['inputType'] = 'input-group',
-  options: MedicineField['options'] = []
-): MedicineField {
-  return {
-    id: nanoid(),
-    name,
-    description,
-    inputType,
-    required: true,
-    fieldType: 'medicine',
-    options,
-    fields: {
-      name: createTextField('Name', 'Name of the medicine'),
-      route: createOptionsField('Route', 'Route of the medicine', 'dropdown', [
-        'Oral',
-        'Intravenous',
-        'Intramuscular',
-        'Subcutaneous',
-        'Topical',
-        'Inhalation',
-        'Rectal',
-        'Ophthalmic',
-        'Otic',
-        'Nasal',
-        'Intranasal',
-        'Intradermal',
-        'Intraosseous',
-        'Intraperitoneal',
-        'Intrathecal',
-        'Intracardiac',
-        'Intracavernous',
-        'Intracerebral',
-        'Intracere',
-      ]),
-      form: createOptionsField('Form', 'Form of the medication', 'dropdown', [
-        'Tablet',
-        'Capsule',
-        'Liquid',
-        'Powder',
-        'Suppository',
-        'Inhaler',
-        'Patch',
-        'Cream',
-        'Gel',
-        'Ointment',
-        'Lotion',
-        'Drops',
-        'Spray',
-        'Syrup',
-        'Suspension',
-        'Injection',
-        'Implant',
-        'Implantable pump',
-        'Implantable reservoir',
-        'Implantable infusion system',
-        'Implantable drug delivery system',
-        'Implantable drug d',
-      ]),
-      dose: createTextField('Dose', 'Dose of the medicine'),
-      doseUnits: createOptionsField('Dosage Units', 'Units for the dosage', 'dropdown', [
-        'mg',
-        'g',
-        'ml',
-        'l',
-      ]),
-      frequency: createTextField('Frequency', 'Frequency of the medicine'),
-      intervals: createTextField('Intervals', 'Intervals of the medicine'),
-      duration: createTextField('Duration', 'Duration of the medicine'),
-      durationUnits: createOptionsField('Duration Units', 'Units for the duration', 'dropdown', [
-        'hours',
-        'days',
-        'weeks',
-        'months',
-        'years',
-      ]),
-    },
-  };
-}
+// function createMedicineField(
+//   name = 'Medicine',
+//   description = '',
+//   inputType: MedicineField['inputType'] = 'input-group',
+//   options: MedicineField['options'] = []
+// ): MedicineField {
+//   return {
+//     id: nanoid(),
+//     name,
+//     description,
+//     inputType,
+//     required: true,
+//     fieldType: 'medicine',
+//     options,
+//     fields: {
+//       name: createTextField('Name', 'Name of the medicine'),
+//       route: createOptionsField('Route', 'Route of the medicine', 'dropdown', [
+//         'Oral',
+//         'Intravenous',
+//         'Intramuscular',
+//         'Subcutaneous',
+//         'Topical',
+//         'Inhalation',
+//         'Rectal',
+//         'Ophthalmic',
+//         'Otic',
+//         'Nasal',
+//         'Intranasal',
+//         'Intradermal',
+//         'Intraosseous',
+//         'Intraperitoneal',
+//         'Intrathecal',
+//         'Intracardiac',
+//         'Intracavernous',
+//         'Intracerebral',
+//         'Intracere',
+//       ]),
+//       form: createOptionsField('Form', 'Form of the medication', 'dropdown', [
+//         'Tablet',
+//         'Capsule',
+//         'Liquid',
+//         'Powder',
+//         'Suppository',
+//         'Inhaler',
+//         'Patch',
+//         'Cream',
+//         'Gel',
+//         'Ointment',
+//         'Lotion',
+//         'Drops',
+//         'Spray',
+//         'Syrup',
+//         'Suspension',
+//         'Injection',
+//         'Implant',
+//         'Implantable pump',
+//         'Implantable reservoir',
+//         'Implantable infusion system',
+//         'Implantable drug delivery system',
+//         'Implantable drug d',
+//       ]),
+//       dose: createTextField('Dose', 'Dose of the medicine'),
+//       doseUnits: createOptionsField('Dosage Units', 'Units for the dosage', 'dropdown', [
+//         'mg',
+//         'g',
+//         'ml',
+//         'l',
+//       ]),
+//       frequency: createTextField('Frequency', 'Frequency of the medicine'),
+//       intervals: createTextField('Intervals', 'Intervals of the medicine'),
+//       duration: createTextField('Duration', 'Duration of the medicine'),
+//       durationUnits: createOptionsField('Duration Units', 'Units for the duration', 'dropdown', [
+//         'hours',
+//         'days',
+//         'weeks',
+//         'months',
+//         'years',
+//       ]),
+//     },
+//   };
+// }
 
-const createOptionsField = (
-  name = '',
-  description = '',
-  inputType: OptionsField['inputType'] = 'dropdown',
-  options: OptionsField['options'] = []
-): OptionsField => {
-  return {
-    id: nanoid(),
-    name,
-    description,
-    inputType,
-    required: true,
-    fieldType: 'options',
-    multi: false,
-    options,
-  };
-};
+// const createOptionsField = (
+//   name = '',
+//   description = '',
+//   inputType: OptionsField['inputType'] = 'dropdown',
+//   options: OptionsField['options'] = []
+// ): OptionsField => {
+//   return {
+//     id: nanoid(),
+//     name,
+//     description,
+//     inputType,
+//     required: true,
+//     fieldType: 'options',
+//     multi: false,
+//     options,
+//   };
+// };
 
-const createDiagnosisField = (
-  name = 'Diagnosis',
-  description = '',
-  inputType: OptionsField['inputType'] = 'dropdown',
-  options: OptionsField['options'] = []
-): OptionsField => {
-  return {
-    id: nanoid(),
-    name,
-    description,
-    inputType,
-    required: true,
-    fieldType: 'diagnosis',
-    options,
-  };
-};
+// const createDiagnosisField = (
+//   name = 'Diagnosis',
+//   description = '',
+//   inputType: OptionsField['inputType'] = 'dropdown',
+//   options: OptionsField['options'] = []
+// ): OptionsField => {
+//   return {
+//     id: nanoid(),
+//     name,
+//     description,
+//     inputType,
+//     required: true,
+//     fieldType: 'diagnosis',
+//     options,
+//   };
+// };
 
-const createDateField = (name = '', description = '', inputType = 'date'): DateField => {
-  return {
-    id: nanoid(),
-    name,
-    description,
-    inputType,
-    required: true,
-    fieldType: 'date',
-  };
-};
+// const createDateField = (name = '', description = '', inputType = 'date'): DateField => {
+//   return {
+//     id: nanoid(),
+//     name,
+//     description,
+//     inputType,
+//     required: true,
+//     fieldType: 'date',
+//   };
+// };
 
-let inputFieldOptions: Partial[] = ['binary', 'free-text', 'medicine'];
+// let inputFieldOptions: Partial[] = ['binary', 'free-text', 'medicine'];
 
-type State = {
-  [id: string]: HHFieldWithPosition;
-};
+// type State = {
+//   [id: string]: HHFieldWithPosition;
+// };
 
-type Action =
-  /** Method used to override all internal fields with new fields. usefull for syncing with server/db */
-  | { type: 'set-form-state'; payload: { fields: HHFieldWithPosition[] } }
-  | { type: 'add-field'; payload: HHField }
-  | { type: 'remove-field'; payload: string }
-  /** For a drop down, update its options that are rendered in a select */
-  | { type: 'set-dropdown-options'; payload: { id: string; value: FieldOption[] } }
-  | { type: 'set-field-key-value'; payload: { id: string; key: string; value: any } }
-  | { type: 'add-units'; payload: { id: string; value: DoseUnit[] } }
-  | { type: 'remove-units'; payload: { id: string } }
-  | { type: 'reorder-fields'; payload: { ids: string[] } };
+// type Action =
+//   /** Method used to override all internal fields with new fields. usefull for syncing with server/db */
+//   | { type: 'set-form-state'; payload: { fields: HHFieldWithPosition[] } }
+//   | { type: 'add-field'; payload: HHField }
+//   | { type: 'remove-field'; payload: string }
+//   /** For a drop down, update its options that are rendered in a select */
+//   | { type: 'set-dropdown-options'; payload: { id: string; value: FieldOption[] } }
+//   | { type: 'set-field-key-value'; payload: { id: string; key: string; value: any } }
+//   | { type: 'add-units'; payload: { id: string; value: DoseUnit[] } }
+//   | { type: 'remove-units'; payload: { id: string } }
+//   | { type: 'reorder-fields'; payload: { ids: string[] } };
 
-const reducer = (state: State, action: Action) => {
-  switch (action.type) {
-    case 'set-form-state':
-      const { fields } = action.payload;
-      const formState = fields.reduce((prev, curr) => {
-        return {
-          ...prev,
-          [curr.id]: curr,
-        };
-      }, {});
-      return formState;
-    case 'add-field':
-      return {
-        ...state,
-        [action.payload.id]: {
-          position: Object.keys(state).length, // adds position after adding field
-          ...action.payload,
-        },
-      };
-    case 'remove-field':
-      const newState = { ...state };
-      delete newState[action.payload];
-      return newState;
-    case 'set-field-key-value':
-      return {
-        ...state,
-        [action.payload.id]: {
-          ...state[action.payload.id],
-          [action.payload.key]: action.payload.value,
-        },
-      };
-    case 'set-dropdown-options':
-      return {
-        ...state,
-        [action.payload.id]: {
-          ...state[action.payload.id],
-          options: action.payload.value,
-        },
-      };
-    case 'add-units':
-      return {
-        ...state,
-        [action.payload.id]: {
-          ...state[action.payload.id],
-          units: action.payload.value,
-        },
-      };
-    case 'remove-units':
-      return {
-        ...state,
-        [action.payload.id]: {
-          ...omit(state[action.payload.id], 'units'),
-        },
-      };
-    case 'reorder-fields':
-      const { ids } = action.payload;
-      const newOrder = ids.reduce((prev, curr, idx) => {
-        prev[curr] = {
-          ...prev[curr],
-          position: idx,
-        };
-        return prev;
-      }, state);
-      return { ...newOrder };
-    default:
-      return state;
-  }
-};
+// const reducer = (state: State, action: Action) => {
+//   switch (action.type) {
+//     case 'set-form-state':
+//       const { fields } = action.payload;
+//       const formState = fields.reduce((prev, curr) => {
+//         return {
+//           ...prev,
+//           [curr.id]: curr,
+//         };
+//       }, {});
+//       return formState;
+//     case 'add-field':
+//       return {
+//         ...state,
+//         [action.payload.id]: {
+//           position: Object.keys(state).length, // adds position after adding field
+//           ...action.payload,
+//         },
+//       };
+//     case 'remove-field':
+//       const newState = { ...state };
+//       delete newState[action.payload];
+//       return newState;
+//     case 'set-field-key-value':
+//       return {
+//         ...state,
+//         [action.payload.id]: {
+//           ...state[action.payload.id],
+//           [action.payload.key]: action.payload.value,
+//         },
+//       };
+//     case 'set-dropdown-options':
+//       return {
+//         ...state,
+//         [action.payload.id]: {
+//           ...state[action.payload.id],
+//           options: action.payload.value,
+//         },
+//       };
+//     case 'add-units':
+//       return {
+//         ...state,
+//         [action.payload.id]: {
+//           ...state[action.payload.id],
+//           units: action.payload.value,
+//         },
+//       };
+//     case 'remove-units':
+//       return {
+//         ...state,
+//         [action.payload.id]: {
+//           ...omit(state[action.payload.id], 'units'),
+//         },
+//       };
+//     case 'reorder-fields':
+//       const { ids } = action.payload;
+//       const newOrder = ids.reduce((prev, curr, idx) => {
+//         prev[curr] = {
+//           ...prev[curr],
+//           position: idx,
+//         };
+//         return prev;
+//       }, state);
+//       return { ...newOrder };
+//     default:
+//       return state;
+//   }
+// };
 
 export default function NewFormBuilder() {
   const [err, setErr] = React.useState<null | string>(null);
