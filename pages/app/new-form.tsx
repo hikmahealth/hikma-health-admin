@@ -291,6 +291,7 @@ export default function NewFormBuilder() {
   const [formFieldsState, setFormFieldsState] = React.useState<
     | undefined
     | {
+        fields: any[];
         description: string;
         name: string;
         isSnapshot: boolean;
