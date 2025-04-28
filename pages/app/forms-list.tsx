@@ -1,5 +1,5 @@
 import { ActionIcon, Checkbox, Loader, Table } from '@mantine/core';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconFilePlus, IconTrash } from '@tabler/icons-react';
 import axios from 'axios';
 import { pick, truncate } from 'lodash';
 import { useRouter } from 'next/router';
@@ -136,6 +136,45 @@ export default function FormsList() {
     });
   };
 
+  const duplicateForm = (form: HHForm) => {
+    const formObj = {
+      ...pick(form, ['description', 'language', 'metadata']),
+      is_editable: true,
+      is_snapshot_form: false,
+      name: form.name ? `Duplicate of ${form.name}` : `Duplicated Form`,
+      // @ts-ignore
+      form_fields: form.form_fields,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      id: uuidV1(),
+    };
+
+    if (confirm(`You are about to duplicate the '${form.name}' form`)) {
+      const token = localStorage.getItem('token');
+      axios
+        .post(
+          `${HIKMA_API}/admin_api/save_event_form`,
+          {
+            event_form: formObj,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: String(token),
+            },
+          }
+        )
+        .then((res) => {
+          router.push('/app/new-form', {
+            query: { formId: formObj.id },
+          });
+        })
+        .catch(() => {
+          alert('Error duplicating form. Please try signing out and signing back in.');
+        });
+    }
+  };
+
   const confirmDelete = (id: string) => {
     if (window.confirm('Are you sure you want to delete this form?')) {
       const token = localStorage.getItem('token') || '';
@@ -224,6 +263,9 @@ export default function FormsList() {
           </ActionIcon>
           <ActionIcon variant="transparent" onClick={() => openFormEdit(form)}>
             <IconEdit size="1rem" color="blue" />
+          </ActionIcon>
+          <ActionIcon variant="transparent" onClick={() => duplicateForm(form)}>
+            <IconFilePlus size="1rem" color="orange" />
           </ActionIcon>
         </div>
       </Table.Td>
