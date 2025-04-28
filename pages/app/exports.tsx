@@ -4,6 +4,7 @@ import { endOfDay, format, isValid, startOfDay, subDays } from 'date-fns';
 import { upperFirst } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import { useImmer } from 'use-immer';
+import * as XLSX from 'xlsx';
 import If from '../../components/If';
 import AppLayout from '../../components/Layout';
 import { usePatientRegistrationForm } from '../../hooks/usePatientRegistrationForm';
@@ -14,7 +15,6 @@ import { orderedList } from '../../utils/misc';
 import { getAllForms } from './forms-list';
 import { getPatientColumns } from './patients/list';
 import { getTranslation } from './patients/registration-form';
-import * as XLSX from 'xlsx';
 
 const HIKMA_API = process.env.NEXT_PUBLIC_HIKMA_API;
 
@@ -95,7 +95,9 @@ export default function ExportsPage() {
   const eventColumns = useMemo(() => {
     const cols = new Set();
     eventResponse.map((ev) => {
-      ev.formData?.forEach((ex) => cols.add(ex.name));
+      const formdata =
+        typeof ev.formData === 'string' ? (JSON.parse(ev.formData) as Array<any>) : ev.formData;
+      formdata?.forEach((ex) => cols.add(ex.name));
     });
     return Array.from(cols) as string[];
   }, [eventResponse]);
@@ -171,11 +173,14 @@ export default function ExportsPage() {
   const registrationColToField: Record<string, string> = useMemo(() => {
     if (patientRegistrationForm === null) return {};
     const { fields } = patientRegistrationForm;
-    return fields.reduce((prev, curr) => {
-      const key = curr.column;
-      prev[key] = getTranslation(curr.label, 'en') || curr.column || '';
-      return prev;
-    }, {} as Record<string, string>);
+    return fields.reduce(
+      (prev, curr) => {
+        const key = curr.column;
+        prev[key] = getTranslation(curr.label, 'en') || curr.column || '';
+        return prev;
+      },
+      {} as Record<string, string>
+    );
   }, [patientRegistrationForm]);
 
   const { columnIds, eventRows }: { columnIds: string[]; eventRows: MultipleEventRows['values'] } =
@@ -195,11 +200,10 @@ export default function ExportsPage() {
     const eventName = getFormName(id, forms || []);
     const fileName = `${startDate}-${endDate}-${eventName}`;
 
-    const table_elt = document.getElementById("form-data-table");
+    const table_elt = document.getElementById('form-data-table');
 
     // Extract Data (create a workbook object from the table)
     const workbook = XLSX.utils.table_to_book(table_elt);
-
 
     // Get the workbook as a binary string
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
@@ -209,7 +213,7 @@ export default function ExportsPage() {
       const buf = new ArrayBuffer(s.length);
       const view = new Uint8Array(buf);
       for (let i = 0; i < s.length; i++) {
-        view[i] = s.charCodeAt(i) & 0xFF;
+        view[i] = s.charCodeAt(i) & 0xff;
       }
       return buf;
     }
@@ -350,11 +354,11 @@ export default function ExportsPage() {
           sm: 1,
         }}
         spacing="lg"
-      // breakpoints={[
-      // { maxWidth: '62rem', cols: 3, spacing: 'md' },
-      // { maxWidth: '48rem', cols: 2, spacing: 'sm' },
-      // { maxWidth: '36rem', cols: 1, spacing: 'sm' },
-      // ]}
+        // breakpoints={[
+        // { maxWidth: '62rem', cols: 3, spacing: 'md' },
+        // { maxWidth: '48rem', cols: 2, spacing: 'sm' },
+        // { maxWidth: '36rem', cols: 1, spacing: 'sm' },
+        // ]}
       >
         {/*{forms.map((form) => (
           <Paper shadow="xs" key={form.id} p="md">
@@ -515,8 +519,8 @@ function exportTableToExcel(tableID: string, filename = '') {
   }
 }
 
-/** 
-REF: https://www.geeksforgeeks.org/how-to-export-html-table-to-csv-using-javascript/ 
+/**
+REF: https://www.geeksforgeeks.org/how-to-export-html-table-to-csv-using-javascript/
 
 @param {string} fileName of the file you wish to save as
 @param {string} delimiter
