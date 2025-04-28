@@ -242,17 +242,19 @@ export function InputSettingsList({
   );
 
   return (
-    /*     @ts-ignore */
     <DragDropContext
       onDragEnd={({ destination, source }) => {
-        console.log('drag positions', source, destination);
+        // console.log('drag positions', source, destination);
+        if (destination === null) {
+          // content was dragged to drop zone. ignore this
+          // to force use to click on 'Remove'
+          return;
+        }
         onReorder(moveString(Object.keys(fields).map(Number), source.index, destination.index));
       }}
     >
-      {/*       @ts-ignore */}
       <Droppable droppableId="dnd-list" direction="vertical">
         {(provided) => (
-          /*       @ts-ignore */
           <div {...provided.droppableProps} ref={provided.innerRef}>
             {items}
             {provided.placeholder}

@@ -22,7 +22,7 @@ import {
   createTextField,
   fieldFile,
 } from './fields';
-import { createComponent, field } from './utils';
+import { createComponent } from './utils';
 
 const FreeTextInput = function ({ field }: { field: TextField }) {
   const inputProps = {
@@ -73,7 +73,7 @@ const ComponentRegistry = [
     icon: <IconNumbers />,
     render: FreeTextInput,
   }),
-  createComponent(createDateField('Date', '', 'date'), {
+  createComponent(createDateField(), {
     label: 'Date',
     icon: <IconCalendar />,
     render: function ({ field }) {
@@ -89,33 +89,17 @@ const ComponentRegistry = [
       );
     },
   }),
-  createComponent(createOptionsField(undefined, undefined, 'radio'), {
+  createComponent(createOptionsField({ inputType: 'radio' }), {
     label: 'Options',
     icon: <IconList />,
     render: OptionsInput,
   }),
 
-  // name,
-  // description,
-  // inputType,
-  // required: true,
-  // fieldType: 'options',
-  // multi: false,
-  // options,
-  createComponent(
-    field({
-      name: '',
-      description: '',
-      required: true,
-      fieldType: 'options',
-      inputType: 'select',
-    }),
-    {
-      label: 'Select / Dropdown',
-      icon: <IconList />,
-      render: OptionsInput,
-    }
-  ),
+  createComponent(createOptionsField({ inputType: 'select', multi: true }), {
+    label: 'Select / Dropdown',
+    icon: <IconList />,
+    render: OptionsInput,
+  }),
   createComponent(createMedicineField(), {
     label: 'Medicine',
     icon: <IconMedicineSyrup />,

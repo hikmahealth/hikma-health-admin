@@ -395,21 +395,21 @@ export default function NewFormBuilder() {
       initialState={formFieldsState ? { fields: formFieldsState.fields } : undefined}
     >
       <AppLayout title="Form Builder" isLoading={loading}>
-        <FormBuilderViewerLayout formId={formId} />
+        <FormBuilderViewerLayout formId={formId} formData={omit(formFieldsState ?? {}, 'fields')} />
       </AppLayout>
     </FormBuilderContextProvider>
   );
 }
 
-function FormBuilderViewerLayout({ formId }) {
+function FormBuilderViewerLayout({ formId, formData }) {
   const router = useRouter();
-  const [formName, setFormName] = useState('');
-  const [state, dispatch] = useFormBuilderContext();
+  const [formName, setFormName] = useState(formData.name);
   const [language, setLanguage] = useState('en');
-  const [formDescription, setFormDescription] = useState('');
-  const [formIsEditable, setFormIsEditable] = useState(true);
-  const [formIsSnapshot, setFormIsSnapshot] = useState(false);
+  const [formDescription, setFormDescription] = useState(formData.description);
+  const [formIsEditable, setFormIsEditable] = useState(formData.isEditable);
+  const [formIsSnapshot, setFormIsSnapshot] = useState(formData.isSnapshot);
   const [loadingSave, setLoadingSave] = useState(false);
+  const [state, dispatch] = useFormBuilderContext();
 
   const addField = (field) => () => {
     dispatch({ type: 'add-field', payload: field });
@@ -510,6 +510,8 @@ function FormBuilderViewerLayout({ formId }) {
       });
   };
 
+  console.log('FORM DATA', formData);
+
   return (
     <Grid className="m-0 " gap="4">
       <Grid.Col span={5} className="overflow-y-scroll h-screen px-2 pt-4">
@@ -571,17 +573,19 @@ function FormBuilderViewerLayout({ formId }) {
         span={7}
         className="space-y-4 px-12 py-8 overflow-y-scroll h-screen"
       >
-        <FormPreviewer name={formName} fields={state.fields} />
+        <FormPreviewer name={formName} />
       </Grid.Col>
     </Grid>
   );
 }
 
-function FormPreviewer({ name, fields }: { name: string; fields: any[] }) {
+function FormPreviewer({ name }: { name: string }) {
+  const [state] = useFormBuilderContext();
+
   return (
     <>
       <h4 className="text-2xl mb-2">{name}</h4>
-      {fields.map((field, idx) => {
+      {state.fields.map((field, idx) => {
         // FUTURE: might want to pass the component into state tree
         // instead of ALWAYS doing a .find
         const component = ComponentRegistry.find(
