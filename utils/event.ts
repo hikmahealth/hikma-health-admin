@@ -17,24 +17,34 @@ export function formatEventsIntoRows(
 ): MultipleEventRows {
   const columns = new Set<string>();
   // intermediate obj to track column names and their ids
-  const addAttrsMapping: Record<string, string | number | boolean | Date | ICD11Diagnosis[] | Medication[]> = {};
+  const addAttrsMapping: Record<
+    string,
+    string | number | boolean | Date | ICD11Diagnosis[] | Medication[]
+  > = {};
   let values = []; // { columnName: columnValue }[]
 
   for (let ix = 0; ix < events.length; ix++) {
     const event = events[ix];
     console.log({ event });
     const patient = event.patient;
-    const res: Record<string, string | number | boolean | Date | ICD11Diagnosis[] | Medication[]> = {
-      created_at: event.createdAt || '',
-      updated_at: event.updatedAt || '',
+    const res: Record<string, string | number | boolean | Date | ICD11Diagnosis[] | Medication[]> =
+      {
+        created_at: event.createdAt || '',
+        updated_at: event.updatedAt || '',
 
-      // Ignore these timestamps for the events row.
-      // created_at: patient.created_at || '',
-      // updated_at: patient.updated_at || '',
-    };
+        // Ignore these timestamps for the events row.
+        // created_at: patient.created_at || '',
+        // updated_at: patient.updated_at || '',
+      };
 
     // Object.keys(patient).forEach((x) => !allIgnoredFields.includes(x) && columns.add(x));
-    event.formData.forEach((entry) => {
+    // HACK: event.formData maybe string, this shouldn't be permanent
+    const formdata =
+      typeof event.formData === 'string'
+        ? (JSON.parse(event.formData) as Array<any>)
+        : event.formData;
+
+    formdata.forEach((entry) => {
       const col = decodeURI(entry.name);
       columns.add(col);
       res[col] = entry.value;

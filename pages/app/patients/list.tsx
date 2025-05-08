@@ -1,6 +1,6 @@
 import { ActionIcon, Box, Button, Loader, rem, Table, TextInput } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconArrowRight, IconPlus, IconSearch, IconX } from '@tabler/icons-react';
+import { IconArrowRight, IconPlus, IconSearch, IconTrash, IconX } from '@tabler/icons-react';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { differenceBy, replace } from 'lodash';
@@ -125,11 +125,14 @@ export default function PatientsList() {
   const registrationColToField: Record<string, string> = useMemo(() => {
     if (patientRegistrationForm === null) return {};
     const { fields } = patientRegistrationForm;
-    return fields.reduce((prev, curr) => {
-      const key = curr.column;
-      prev[key] = getTranslation(curr.label, 'en') || curr.column || '';
-      return prev;
-    }, {} as Record<string, string>);
+    return fields.reduce(
+      (prev, curr) => {
+        const key = curr.column;
+        prev[key] = getTranslation(curr.label, 'en') || curr.column || '';
+        return prev;
+      },
+      {} as Record<string, string>
+    );
   }, [patientRegistrationForm]);
 
   /** Download all the loaded patients */
@@ -234,8 +237,40 @@ export default function PatientsList() {
     console.log(patient);
   };
 
+  const handleDelete = (patientId: string) => () => {
+    console.log(patientId);
+    if (!window.confirm('Are you sure you want to delete this patient?')) return;
+
+    const token = localStorage.getItem('token');
+    axios
+      .delete(`${HIKMA_API}/v1/admin/patients/${patientId}`, {
+        headers: {
+          Authorization: token,
+        },
+      })
+      .then(() => {
+        setPatients((prev) => prev.filter((p) => p.id !== patientId));
+        notifications.show({
+          title: 'Success',
+          message: 'Patient deleted successfully',
+          color: 'green',
+          position: 'top-right',
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        notifications.show({
+          title: 'Error',
+          message: 'An error occurred while deleting patient',
+          color: 'red',
+          position: 'top-right',
+        });
+      });
+  };
+
   const ths = (
     <Table.Tr>
+      <Table.Th style={{ width: 50 }}>Actions</Table.Th>
       {columnIds?.map((col) => (
         <Table.Th style={{ minWidth: 250 }} key={col}>
           {registrationColToField[col] || replace(col || '', '_', ' ')}
@@ -266,8 +301,20 @@ export default function PatientsList() {
         // onClick={handlePatientClicked(patient)}
         key={'patient_row_' + idx}
       >
+        <Table.Td>
+          <ActionIcon
+            variant="transparent"
+            color="red"
+            onClick={handleDelete(patient.id as string)}
+            // onClick={() => console.log(patient.id)}
+          >
+            <IconTrash size="1rem" />
+          </ActionIcon>
+        </Table.Td>
         {columnIds?.map((colId) => (
-          <Table.Td key={patient.id + colId}>{String(patient[colId] || '')}</Table.Td>
+          <Table.Td key={patient.id + colId}>
+            {String(patient[colId as keyof Patient] || '')}
+          </Table.Td>
         ))}
       </Table.Tr>
     );

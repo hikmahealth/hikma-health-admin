@@ -10,10 +10,9 @@ import {
   useMantineColorScheme,
 } from '@mantine/core';
 import { createStyles } from '@mantine/emotion';
-import { useListState } from '@mantine/hooks';
 import { IconGripVertical, IconTrash } from '@tabler/icons-react';
 import { uniq, upperFirst } from 'lodash';
-import { useEffect } from 'react';
+import React from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import CreatableSelect from 'react-select/creatable';
 import { DoseUnit, FieldOption, HHFieldWithPosition, MeasurementUnit } from '../../types/Inputs';
@@ -96,16 +95,16 @@ const useStyles = createStyles((theme, _, u) => ({
 }));
 
 type DndListHandleProps = {
-  data: HHFieldWithPosition[];
-  onRemoveField: (id: string) => void;
-  onFieldChange: (id: string, key: string, value: any) => void;
-  onFieldOptionChange: (id: string, options: FieldOption[]) => void;
-  onFieldUnitChange: (id: string, units: DoseUnit[] | false) => void;
-  onReorder: (ids: string[]) => void;
+  fields: HHFieldWithPosition[];
+  onRemoveField: (ix: number) => void;
+  onFieldChange: (ix: number, key: string, value: any) => void;
+  onFieldOptionChange: (ix: number, options: FieldOption[]) => void;
+  onFieldUnitChange: (ix: number, units: DoseUnit[] | false) => void;
+  onReorder: (ixs: number[]) => void;
 };
 
 export function InputSettingsList({
-  data,
+  fields, // query this from the hook
   onRemoveField,
   onFieldChange,
   onFieldOptionChange,
@@ -113,174 +112,149 @@ export function InputSettingsList({
   onReorder,
 }: DndListHandleProps) {
   const { classes, cx } = useStyles();
-  const [state, handlers] = useListState(data);
   const { colorScheme } = useMantineColorScheme();
 
-  // On change of incoming data props, update the listState
-  useEffect(() => {
-    handlers.setState(data);
-  }, [data]);
-
-  const items = state.map((item, index) => {
-    return (
-      <Draggable key={item.id} index={index} draggableId={item.id}>
-        {(provided, snapshot) => (
-          <div
-            className={cx(classes.item, { [classes.itemDragging]: snapshot.isDragging })}
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-          >
-            <div {...provided.dragHandleProps} className={classes.dragHandle}>
-              <IconGripVertical size="1.05rem" stroke={1.5} />
-            </div>
-            <div className="w-full">
-              <h3 className="text-lg font-bold">{upperFirst(item.inputType)} Input</h3>
-              <TextInput
-                label={'Name'}
-                defaultValue={item.name}
-                onChange={(e) => onFieldChange(item.id, 'name', e.currentTarget.value)}
-              />
-              <TextInput
-                label="Description (Optional)"
-                defaultValue={item.description}
-                onChange={(e) => onFieldChange(item.id, 'description', e.currentTarget.value)}
-              />
-              <Text color="dimmed" size="sm">
-                Type: {item.inputType}
-              </Text>
-
-              {/* IF the field type is medicine, then show the textarea for medication options the doctor can choose from. This is optional. */}
-              <If show={item.fieldType === 'medicine'}>
-                <Textarea
-                  rows={4}
-                  defaultValue={item.options?.join('; ') || ' '}
-                  onChange={(e) =>
-                    onFieldOptionChange(
-                      item.id,
-                      e.currentTarget.value
-                        .split(';')
-                        .map((opt) => opt.trim())
-                        .filter((option) => option.trim() !== '')
-                    )
-                  }
-                  label="Medication options, separated by semicolon (;)"
-                  placeholder="Enter the options - Leave empty if not applicable"
-                />
-              </If>
-
-              {/* IF the field type is a select, dropdown, checkbox, or radio, then show the options input */}
-              <If
-                show={
-                  ['select', 'dropdown', 'checkbox', 'radio'].includes(item.inputType) &&
-                  item.fieldType !== 'diagnosis'
-                }
-              >
-                <Box py={4}>
-                  {/*<MultiSelect
-                    label="Add options"
-                    data={fieldOptionsUnion(YesNoOptions, item.options || [])}
-                    placeholder="Select items"
-                    searchable
-                    value={item.options.map((option: any) => option.value)}
-                    creatable
-                    onChange={(value) => {
-                      const fieldOptionsArray = value.map((option: any) => ({
-                        value: lowerCase(option),
-                        label: upperFirst(option),
-                      }));
-                      onFieldOptionChange(item.id, fieldOptionsArray);
-                    }}
-                    getCreateLabel={(query) => `+ Create ${query}`}
-                    onCreate={(query) => {
-                      // Lower case and make camel case
-                      const newOption = { value: lowerCase(query), label: query };
-                      onFieldOptionChange(item.id, [...item.options, newOption]);
-                    }}
-                  />
-                  */}
-                  <Text size="sm">Add Options</Text>
-                  <CreatableSelect
-                    value={item.options}
-                    isMulti
-                    isSearchable
-                    onChange={(newValue, _) => onFieldOptionChange(item.id, newValue)}
-                    name="colors"
-                    options={fieldOptionsUnion(YesNoOptions, item.options || [])}
-                    className={
-                      colorScheme === 'light' ? 'light-select-container' : 'dark-select-container'
-                    }
-                    // styles={{
-                    // input: {
-                    // background: "red"
-                    // }
-                    // }}
-                    classNamePrefix={colorScheme === 'light' ? 'light-select' : 'dark-select'}
-                  />
-                </Box>
-              </If>
-
-              {item.inputType === 'number' && (
-                <Checkbox
-                  className="py-2"
-                  onChange={(e) =>
-                    onFieldUnitChange(
-                      item.id,
-                      e.currentTarget.checked ? listToFieldOptions(measurementOptions) : false
-                    )
-                  }
-                  checked={item.units && item.units.length > 0}
-                  label="Has Units"
-                />
-              )}
-
-              {item.fieldType === 'options' && item.inputType === 'select' && (
-                <Checkbox
-                  className="py-2"
-                  onChange={(e) => onFieldChange(item.id, 'multi', e.currentTarget.checked)}
-                  checked={item.multi}
-                  label="Supports multiple options"
-                />
-              )}
-
-              <Checkbox
-                className="py-2"
-                onChange={(e) => onFieldChange(item.id, 'required', e.currentTarget.checked)}
-                checked={item.required}
-                label="Required Field"
-              />
-
-              <div className="pt-4">
-                <Button
-                  onClick={() => onRemoveField(item.id)}
-                  variant="subtle"
-                  size="compact-xs"
-                  color="red"
-                  leftIcon={<IconTrash size="1rem" />}
+  const items = React.useMemo(
+    () =>
+      fields.map((item, index) => {
+        return (
+          <Draggable key={index} index={index} draggableId={item.id + '_' + index}>
+            {(provided, snapshot) => {
+              return (
+                <div
+                  className={cx(classes.item, { [classes.itemDragging]: snapshot.isDragging })}
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
                 >
-                  Remove
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-      </Draggable>
-    );
-  });
+                  <div {...provided.dragHandleProps} className={classes.dragHandle}>
+                    <IconGripVertical size="1.05rem" stroke={1.5} />
+                  </div>
+                  <div className="w-full">
+                    <h3 className="text-lg font-bold">{upperFirst(item.inputType)} Input</h3>
+                    <TextInput
+                      label={'Name'}
+                      value={item.name}
+                      onChange={(e) => onFieldChange(index, 'name', e.currentTarget.value)}
+                    />
+                    <TextInput
+                      label="Description (Optional)"
+                      value={item.description}
+                      onChange={(e) => onFieldChange(index, 'description', e.currentTarget.value)}
+                    />
+                    <Text color="dimmed" size="sm">
+                      Type: {item.inputType}
+                    </Text>
+
+                    {/* IF the field type is medicine, then show the textarea for medication options the doctor can choose from. This is optional. */}
+                    <If show={item.fieldType === 'medicine'}>
+                      <Textarea
+                        rows={4}
+                        value={item.options?.join('; ') || ' '}
+                        onChange={(e) =>
+                          onFieldOptionChange(
+                            index,
+                            e.currentTarget.value
+                              .split(';')
+                              .map((opt) => opt.trim())
+                              .filter((option) => option.trim() !== '')
+                          )
+                        }
+                        label="Medication options, separated by semicolon (;)"
+                        placeholder="Enter the options - Leave empty if not applicable"
+                      />
+                    </If>
+
+                    {/* IF the field type is a select, dropdown, checkbox, or radio, then show the options input */}
+                    <If
+                      show={
+                        ['select', 'dropdown', 'checkbox', 'radio'].includes(item.inputType) &&
+                        item.fieldType !== 'diagnosis'
+                      }
+                    >
+                      <Box py={4}>
+                        <Text size="sm">Add Options</Text>
+                        <CreatableSelect
+                          value={item.options}
+                          isMulti
+                          isSearchable
+                          onChange={(newValue, _) => onFieldOptionChange(index, newValue)}
+                          name="colors"
+                          options={fieldOptionsUnion(YesNoOptions, item.options || [])}
+                          className={
+                            colorScheme === 'light'
+                              ? 'light-select-container'
+                              : 'dark-select-container'
+                          }
+                          classNamePrefix={colorScheme === 'light' ? 'light-select' : 'dark-select'}
+                        />
+                      </Box>
+                    </If>
+
+                    {item.inputType === 'number' && (
+                      <Checkbox
+                        className="py-2"
+                        onChange={(e) =>
+                          onFieldUnitChange(
+                            index,
+                            e.currentTarget.checked ? listToFieldOptions(measurementOptions) : false
+                          )
+                        }
+                        checked={item.units && item.units.length > 0}
+                        label="Has Units"
+                      />
+                    )}
+
+                    {item.fieldType === 'options' && item.inputType === 'select' && (
+                      <Checkbox
+                        className="py-2"
+                        onChange={(e) => onFieldChange(index, 'multi', e.currentTarget.checked)}
+                        checked={item.multi}
+                        label="Supports multiple options"
+                      />
+                    )}
+
+                    <Checkbox
+                      className="py-2"
+                      onChange={(e) => onFieldChange(index, 'required', e.currentTarget.checked)}
+                      checked={item.required}
+                      label="Required Field"
+                    />
+
+                    <div className="pt-4">
+                      <Button
+                        onClick={() => onRemoveField(index)}
+                        variant="subtle"
+                        size="compact-xs"
+                        color="red"
+                        leftIcon={<IconTrash size="1rem" />}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            }}
+          </Draggable>
+        );
+      }),
+    [fields]
+  );
 
   return (
-    /*     @ts-ignore */
     <DragDropContext
       onDragEnd={({ destination, source }) => {
-        handlers.reorder({ from: source.index, to: destination?.index || 0 });
-        const fieldIds = state.map((field) => field.id);
-
-        onReorder(moveString(fieldIds, source.index, destination.index));
+        // console.log('drag positions', source, destination);
+        if (destination === null) {
+          // content was dragged to drop zone. ignore this
+          // to force use to click on 'Remove'
+          return;
+        }
+        onReorder(moveString(Object.keys(fields).map(Number), source.index, destination.index));
       }}
     >
-      {/*       @ts-ignore */}
       <Droppable droppableId="dnd-list" direction="vertical">
         {(provided) => (
-          /*       @ts-ignore */
           <div {...provided.droppableProps} ref={provided.innerRef}>
             {items}
             {provided.placeholder}
