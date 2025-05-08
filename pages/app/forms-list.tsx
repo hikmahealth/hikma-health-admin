@@ -1,5 +1,5 @@
 import { ActionIcon, Checkbox, Loader, Table } from '@mantine/core';
-import { IconEdit, IconFilePlus, IconTrash } from '@tabler/icons-react';
+import { IconCopy, IconEdit, IconTrash } from '@tabler/icons-react';
 import axios from 'axios';
 import { pick, truncate } from 'lodash';
 import { useRouter } from 'next/router';
@@ -258,14 +258,22 @@ export default function FormsList() {
       <Table.Td>{form.created_at}</Table.Td>
       <Table.Td>
         <div className="flex space-x-4">
-          <ActionIcon variant="transparent" onClick={() => confirmDelete(form.id)}>
+          <ActionIcon
+            variant="transparent"
+            onClick={() => confirmDelete(form.id)}
+            title="Delete form"
+          >
             <IconTrash size="1rem" color="red" />
           </ActionIcon>
-          <ActionIcon variant="transparent" onClick={() => openFormEdit(form)}>
+          <ActionIcon variant="transparent" onClick={() => openFormEdit(form)} title="Edit form">
             <IconEdit size="1rem" color="blue" />
           </ActionIcon>
-          <ActionIcon variant="transparent" onClick={() => duplicateForm(form)}>
-            <IconFilePlus size="1rem" color="orange" />
+          <ActionIcon
+            variant="transparent"
+            onClick={() => duplicateForm(form)}
+            title="Duplicate form"
+          >
+            <IconCopy size="1rem" color="orange" />
           </ActionIcon>
         </div>
       </Table.Td>

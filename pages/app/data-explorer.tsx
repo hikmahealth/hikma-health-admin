@@ -92,6 +92,8 @@ type PatientFiltersProps = {
   onUpdateRule: (rule: FilterRule) => void;
   onAddRule: () => void;
   onRemoveRule: (id: string) => void;
+  dateRanges: [Date | null, Date | null];
+  setPatientDateRanges: (dateRanges: [Date | null, Date | null]) => void;
 };
 function PatientFilters({
   form,
@@ -100,6 +102,8 @@ function PatientFilters({
   onUpdateRule,
   onAddRule,
   onRemoveRule,
+  dateRanges,
+  setPatientDateRanges,
 }: PatientFiltersProps) {
   const fieldNames = form.fields
     .filter((f) => f.deleted !== true && f.label?.en)
@@ -181,6 +185,16 @@ function PatientFilters({
       </Flex>
 
       <div>
+        <DatePickerInput
+          type="range"
+          label="Set patient registration date range"
+          placeholder="Pick dates range"
+          value={dateRanges}
+          onChange={setPatientDateRanges}
+        />
+      </div>
+
+      <div>
         {filterFieldRules.map((f) => {
           return (
             <Grid key={f.id}>
@@ -235,6 +249,8 @@ type EventFiltersProps = {
   onUpdateRule: (rule: FilterRule) => void;
   onAddRule: () => void;
   onRemoveRule: (id: string) => void;
+  dateRanges: [Date | null, Date | null];
+  setEventDateRanges: (dateRanges: [Date | null, Date | null]) => void;
 };
 function EventFilters({
   forms,
@@ -243,6 +259,8 @@ function EventFilters({
   onUpdateRule,
   onAddRule,
   onRemoveRule,
+  dateRanges,
+  setEventDateRanges,
 }: EventFiltersProps) {
   const formOptions = forms
     .filter((f) => f.form_fields.length > 0)
@@ -317,6 +335,16 @@ function EventFilters({
           <IconTrash size={15} color="orange" />
         </ActionIcon>
       </Flex>
+
+      <div>
+        <DatePickerInput
+          type="range"
+          label="Set event date range"
+          placeholder="Pick dates range"
+          value={dateRanges}
+          onChange={setEventDateRanges}
+        />
+      </div>
 
       <div>
         {filterFieldRules.map((f) => {
@@ -411,6 +439,9 @@ type FilterRule = {
 
 type ExplorerFilters = {
   rules: Record<ExplorerModule, FilterRule[]>;
+
+  /** Date ranges for the filters - [start, end] */
+  dateRanges: Record<ExplorerModule, [Date | null, Date | null]>;
 };
 
 type PatientFilter = {
@@ -451,6 +482,13 @@ export default function DataExplorer() {
       event: [],
       appointment: [],
       prescription: [],
+    },
+    // date ranges for the filters - [start, end]
+    dateRanges: {
+      patient: [null, null],
+      event: [null, null],
+      appointment: [null, null],
+      prescription: [null, null],
     },
   });
   const [activeFilterModules, setActiveFilterModules] = useState<ExplorerModule[]>([]);
@@ -601,7 +639,8 @@ export default function DataExplorer() {
     const res = await axios.post(
       `${HIKMA_API}/v1/admin/data-explorer`,
       {
-        ...queryFilters,
+        filters: queryFilters,
+        dateRanges: filters.dateRanges,
       },
       {
         headers: {
@@ -664,6 +703,16 @@ export default function DataExplorer() {
                       filterFieldRules={filters.rules.patient}
                       form={registrationForm}
                       onRemove={removeFilterModule(mod)}
+                      dateRanges={filters.dateRanges.patient}
+                      setPatientDateRanges={(dateRanges) => {
+                        setFilters((prevFilters) => ({
+                          ...prevFilters,
+                          dateRanges: {
+                            ...prevFilters.dateRanges,
+                            patient: dateRanges,
+                          },
+                        }));
+                      }}
                     />
                   ) : (
                     <div key={mod}>
@@ -681,6 +730,16 @@ export default function DataExplorer() {
                       onRemoveRule={removeRule(mod)}
                       filterFieldRules={filters.rules.event}
                       onRemove={removeFilterModule(mod)}
+                      dateRanges={filters.dateRanges.event}
+                      setEventDateRanges={(dateRanges) => {
+                        setFilters((prevFilters) => ({
+                          ...prevFilters,
+                          dateRanges: {
+                            ...prevFilters.dateRanges,
+                            event: dateRanges,
+                          },
+                        }));
+                      }}
                     />
                   );
                 default:
