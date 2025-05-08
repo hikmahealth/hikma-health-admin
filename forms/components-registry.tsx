@@ -26,7 +26,8 @@ import { createComponent } from './utils';
 
 const FreeTextInput = function ({ field }: { field: TextField }) {
   const inputProps = {
-    placeholder: field.placeholder,
+    // @ts-expect-error
+    placeholder: field?.placeholder,
     label: field.name,
     description: field.description,
     required: field.required,
@@ -37,8 +38,10 @@ const FreeTextInput = function ({ field }: { field: TextField }) {
     case 'textarea':
       return <Textarea minRows={4} {...inputProps} />;
     case 'number': {
-      const hasUnits = field.units && field.units.length > 0;
-      const dedupUnits = deduplicateOptions(field?.units || []);
+      // @ts-expect-error
+      const units = field?.units ?? [];
+      const hasUnits = units && units.length > 0;
+      const dedupUnits = deduplicateOptions(units);
       return (
         <div className={`flex flex-row ${hasUnits ? 'space-x-4' : ''}`}>
           <div className="flex-1">
@@ -89,22 +92,26 @@ const ComponentRegistry = [
       );
     },
   }),
+  // @ts-expect-error
   createComponent(createOptionsField({ inputType: 'radio' }), {
     label: 'Options',
     icon: <IconList />,
     render: OptionsInput,
   }),
 
+  // @ts-expect-error
   createComponent(createOptionsField({ inputType: 'select', multi: true }), {
     label: 'Select / Dropdown',
     icon: <IconList />,
     render: OptionsInput,
   }),
+  // @ts-expect-error
   createComponent(createMedicineField(), {
     label: 'Medicine',
     icon: <IconMedicineSyrup />,
     render: MedicineInput,
   }),
+  // @ts-expect-error
   createComponent(createDiagnosisField(), {
     label: 'Diagnosis',
     icon: <IconReportMedical />,

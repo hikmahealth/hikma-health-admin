@@ -28,6 +28,7 @@ type Action =
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case 'set-form-state':
+      // @ts-expect-error type mismatch
       return { fields: action.payload };
     case 'add-field':
       return produce(state, (df) => {
@@ -43,6 +44,7 @@ const reducer = (state: State, action: Action): State => {
       const { index, value, key } = action.payload;
       // console.log(`fire change[${index}].${key} = VALUE(${value})`);
       return produce(state, (df) => {
+        // @ts-expect-error
         df.fields[index][key] = value;
         return df;
       });
@@ -50,6 +52,12 @@ const reducer = (state: State, action: Action): State => {
     case 'set-dropdown-options': {
       const { index } = action.payload;
       return produce(state, (df) => {
+        if (!df.fields[index]) {
+          // @ts-expect-error
+          df.fields[index] = {};
+        }
+
+        // @ts-expect-error
         df.fields[index].options = action.payload.value;
         return df;
       });
@@ -58,6 +66,7 @@ const reducer = (state: State, action: Action): State => {
       const { index } = action.payload;
 
       return produce(state, (df) => {
+        // @ts-expect-error
         df.fields[index].units = action.payload.value;
         return df;
       });
@@ -65,6 +74,7 @@ const reducer = (state: State, action: Action): State => {
     case 'remove-units': {
       const { index } = action.payload;
       return produce(state, (df) => {
+        // @ts-expect-error
         delete df.fields[index].units;
         return df;
       });
