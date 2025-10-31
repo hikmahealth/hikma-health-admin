@@ -2,6 +2,32 @@
 <img src="https://images.squarespace-cdn.com/content/5cc0e57236f8e70001651ea6/1599789508819-NGZXYWJDQRCULLU94QEJ/hikma-hb.png?format=300w&content-type=image/png" alt="Hikma Health" />
 </p>
 
+> [!WARNING]
+> **⚠️ DEPRECATED - THIS REPOSITORY IS NO LONGER MAINTAINED ⚠️**
+>
+> This repository has been superseded by our new server implementation. Please migrate to:
+>
+> **New Repository: https://github.com/hikmahealth/hikma-health-server**
+>
+> The new repository offers:
+> - Cheaper infrastructure costs
+> - Simpler architecture and maintenance
+> - Improved performance and scalability
+> - Active development and support
+> - Combined backend and portal functionality (JavaScript/TypeScript only, no more Python)
+> - New permissions and roles management
+> - New pharmacy & Inventory management system
+>
+> **Migration is simple and straightforward.** Please begin your migration process as soon as possible.
+>
+> No new features or bug fixes will be applied to this repository.
+>
+> For more help, please email our CTO at ally[at]hikmahealth.com
+
+
+
+<br><br><br><br><br>
+
 # Hikma Health Admin Application
 
 The Hikma Health platform is a mobile electronic health record system designed for organizations working in low-resource settings to collect and access patient health information.
